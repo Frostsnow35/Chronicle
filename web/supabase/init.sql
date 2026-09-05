@@ -182,12 +182,12 @@ before update on public.settings
 for each row execute function public.trigger_set_updated_at();
 
 -- ---------------------------------------------------------------------
--- 7. Supabase Storage：创建 uploads bucket 的默认策略
---    在 Supabase 控制台手动新建名为 "uploads" 的 PUBLIC bucket，
---    再执行下面的 Policy。（如果你的 bucket 非 public，自行调整）
+-- 7. Supabase Storage：自动创建 uploads 公开 bucket 及其访问策略
+--    public = true：图片通过公开 URL 展示（无需登录即可读取）
 -- ---------------------------------------------------------------------
--- insert into storage.buckets (id, name, public) values ('uploads', 'uploads', true)
---   on conflict (id) do nothing;
+insert into storage.buckets (id, name, public)
+values ('uploads', 'uploads', true)
+on conflict (id) do nothing;
 
 drop policy if exists "uploads authenticated upload" on storage.objects;
 create policy "uploads authenticated upload" on storage.objects
