@@ -14,8 +14,20 @@ export default async function HomePage() {
 
       <section
         id="post-list"
-        className="mx-auto w-full max-w-3xl snap-start px-6 py-20 md:py-28"
+        className="mx-auto w-full max-w-3xl snap-start px-6 py-16 md:py-24"
       >
+        <div className="sticky top-0 z-20 -mx-6 mb-12 flex items-center justify-between bg-white/60 px-6 py-4 backdrop-blur-md md:-mx-0 md:px-0">
+          <span className="text-xs font-medium uppercase tracking-[0.25em] text-ink-500">
+            {site.name}
+          </span>
+          <Link
+            href="/auth/login?next=/admin"
+            className="text-sm font-sans text-ink-700 transition hover:text-hermes-orange-600"
+          >
+            作者登录 · 注册 →
+          </Link>
+        </div>
+
         <div className="mb-12 flex items-end justify-between">
           <div>
             <MetaText>Recent writing</MetaText>
