@@ -7,8 +7,23 @@ export interface PairingPayload {
   expires_at: string;
 }
 
+/** 归一化站点域名：自动补全协议头、剥离路径，返回合法的 origin；无法解析时返回空串。 */
+function normalizeBase(input: string): string {
+  let s = (input || "").trim().replace(/\/+$/, "");
+  if (!s) return "";
+  if (!/^https?:\/\//i.test(s)) s = "https://" + s;
+  try {
+    return new URL(s).origin;
+  } catch {
+    return "";
+  }
+}
+
 /** 生成一个一次性配对短链接 Token，入库。返回短链接完整 URL。 */
-export async function generatePairingLink(ownerId: string): Promise<{
+export async function generatePairingLink(
+  ownerId: string,
+  requestOrigin?: string
+): Promise<{
   token: string;
   expiresAt: Date;
   shortLink: string;
@@ -23,12 +38,12 @@ export async function generatePairingLink(ownerId: string): Promise<{
   });
   if (error) throw new Error("无法生成配对链接：" + error.message);
 
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
-  if (!base) throw new Error("请配置 NEXT_PUBLIC_SITE_URL 环境变量。");
+  // 优先使用显式配置的站点域名，未配置时回退到请求推导出的 origin
+  const base = normalizeBase(process.env.NEXT_PUBLIC_SITE_URL || requestOrigin || "");
+  if (!base) throw new Error("无法确定站点域名，请检查 NEXT_PUBLIC_SITE_URL 配置。");
 
   // 短链接形式：https://site.example.com/pair?token=xxx
-  const url = new URL(base);
-  url.pathname = "/pair";
+  const url = new URL("/pair", base);
   url.searchParams.set("token", token);
   return { token, expiresAt, shortLink: url.toString() };
 }

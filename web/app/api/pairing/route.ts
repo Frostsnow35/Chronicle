@@ -13,6 +13,17 @@ import {
 
 export const runtime = "nodejs";
 
+/** 从请求头推导站点 origin（Vercel 上优先 x-forwarded-* 头）。 */
+function requestOrigin(req: NextRequest): string {
+  const proto =
+    req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
+  const host =
+    req.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ||
+    req.headers.get("host") ||
+    "";
+  return host ? `${proto}://${host}` : "";
+}
+
 export async function GET(req: NextRequest) {
   try {
     // 当前作者名下所有 API Token（不返回明文，仅 id/name/last_used_at/created_at/expires_at）
@@ -48,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     if (action === "generate") {
       const { authorId } = await resolveAuthorFromRequest(req);
-      const link = await generatePairingLink(authorId);
+      const link = await generatePairingLink(authorId, requestOrigin(req));
       return NextResponse.json(link);
     }
     if (action === "issue-token") {
