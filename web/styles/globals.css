@@ -75,9 +75,31 @@ body::after {
   body::before,
   body::after,
   .animate-float-gradient,
-  .animate-float-gradient-reverse {
+  .animate-float-gradient-reverse,
+  .animate-cue-drop {
     animation: none !important;
   }
+}
+
+/* 封面下滑指引：连续下落的倒 V */
+@keyframes cue-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  30% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.animate-cue-drop {
+  animation: cue-drop 1.6s ease-in-out infinite;
 }
 
 /* =============================

@@ -9,10 +9,13 @@ export default async function HomePage() {
   const [site, posts] = await Promise.all([getSiteSettings(), getPublicPosts({ limit: 20 })]);
 
   return (
-    <>
+    <div className="home-scroll h-[100svh] w-full snap-y snap-proximity overflow-y-auto scroll-smooth">
       <HeroCover siteName={site.name} tagline={site.tagline} />
 
-      <section id="post-list" className="mx-auto w-full max-w-3xl px-6 py-20 md:py-28">
+      <section
+        id="post-list"
+        className="mx-auto w-full max-w-3xl snap-start px-6 py-20 md:py-28"
+      >
         <div className="mb-12 flex items-end justify-between">
           <div>
             <MetaText>Recent writing</MetaText>
@@ -50,6 +53,6 @@ export default async function HomePage() {
           </p>
         </div>
       </section>
-    </>
+    </div>
   );
 }

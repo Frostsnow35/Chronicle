@@ -1,14 +1,17 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { ArrowDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 interface HeroCoverProps {
   siteName?: string;
   tagline?: string;
 }
 
+/**
+ * 首屏整屏封面：纯视觉渐变，无卡片无边框。
+ * 底部提供动态“下滑进入”指引，点击或滚动整屏切入文章列表。
+ */
 export default function HeroCover({
   siteName = "Chronicle",
   tagline = "用文字锚定时间"
@@ -19,7 +22,7 @@ export default function HeroCover({
   };
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative h-[100svh] w-full shrink-0 snap-start overflow-hidden">
       {/* 橙蓝双色渐变 + 模糊 */}
       <div
         aria-hidden="true"
@@ -57,45 +60,54 @@ export default function HeroCover({
         }}
       />
 
-      {/* 中央玻璃卡片 */}
-      <div className="relative z-10 flex h-full w-full items-center justify-center px-6">
-        <div className="glass-card-strong max-w-2xl px-10 py-12 text-center animate-fade-up">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.3em] text-ink-700/70">
-            A minimalist journal
-          </p>
-          <h1 className="font-serif text-5xl md:text-6xl font-semibold leading-tight text-ink-950">
-            {siteName}
-          </h1>
-          <div className="mx-auto my-6 h-px w-24 bg-gradient-to-r from-transparent via-ink-500 to-transparent" />
-          <p className="font-serif text-lg text-ink-800/85">{tagline}</p>
-
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              type="button"
-              onClick={scrollToList}
-              className="glass-button-primary !rounded-full !px-7"
-            >
-              开始阅读
-              <ArrowDown className="h-4 w-4" />
-            </button>
-            <Link
-              href="/categories"
-              className="glass-button text-ink-900 hover:bg-white"
-            >
-              按分类浏览
-            </Link>
-          </div>
-        </div>
+      {/* 中央文字：直接浮于渐变之上，无卡片无按钮框 */}
+      <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-6 text-center">
+        <p
+          className="mb-5 text-[11px] font-medium uppercase tracking-[0.35em] text-ink-800/75"
+          style={{ textShadow: "0 1px 2px rgba(255,255,255,0.4)" }}
+        >
+          A minimalist journal
+        </p>
+        <h1
+          className="font-serif text-6xl font-semibold leading-tight tracking-tight text-ink-950 md:text-7xl"
+          style={{ textShadow: "0 1px 3px rgba(255,255,255,0.45)" }}
+        >
+          {siteName}
+        </h1>
+        <div className="mx-auto my-7 h-px w-28 bg-gradient-to-r from-transparent via-ink-800/50 to-transparent" />
+        <p
+          className="font-serif text-xl text-ink-900/90 md:text-2xl"
+          style={{ textShadow: "0 1px 2px rgba(255,255,255,0.35)" }}
+        >
+          {tagline}
+        </p>
       </div>
 
-      {/* 底部下滑提示 */}
-      <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 animate-bounce">
+      {/* 底部动态下滑指引（连续下落的倒 V） */}
+      <div className="absolute inset-x-0 bottom-7 z-10 flex justify-center">
         <button
-          aria-label="向下滚动"
+          type="button"
           onClick={scrollToList}
-          className="glass-card p-2 text-ink-800 hover:bg-white"
+          aria-label="向下滑动进入文章"
+          className="flex flex-col items-center gap-3 px-6 py-2 transition-opacity hover:opacity-70"
         >
-          <ArrowDown className="h-5 w-5" />
+          <span className="flex flex-col items-center" aria-hidden="true">
+            <ChevronDown
+              className="h-6 w-6 animate-cue-drop text-ink-900"
+              style={{ animationDelay: "0s" }}
+            />
+            <ChevronDown
+              className="-mt-3.5 h-6 w-6 animate-cue-drop text-ink-900"
+              style={{ animationDelay: "0.16s" }}
+            />
+            <ChevronDown
+              className="-mt-3.5 h-6 w-6 animate-cue-drop text-ink-900"
+              style={{ animationDelay: "0.32s" }}
+            />
+          </span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.4em] text-ink-800/80">
+            滑动进入
+          </span>
         </button>
       </div>
     </section>
