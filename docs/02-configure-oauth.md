@@ -1,53 +1,38 @@
-# 02 · 配置第三方登录（GitHub / Google）
+# 02 · 配置 GitHub 登录
 
-本项目支持邮箱密码登录，同时可选开启 GitHub / Google 一键登录。这一步是可选的，但推荐配置，因为更方便。
+本项目支持邮箱密码登录，同时可选开启 GitHub 一键登录。这一步是可选的，但推荐配置，因为更方便。
 
-## 通用回调地址
+## 两处回调地址（容易填反，注意区分）
 
-无论配置哪个 OAuth，回调地址统一为：
+1. **GitHub 里的 Authorization callback URL**：填你 Supabase 项目的地址
+   `https://<项目ref>.supabase.co/auth/v1/callback`
+   （`<项目ref>` 是 `SUPABASE_URL` 里 `.supabase.co` 前的一段。本项目为 `cnrisnqhbornsfpqasor`，即填 `https://cnrisnqhbornsfpqasor.supabase.co/auth/v1/callback`）
 
-```
-https://你的域名/auth/callback
-```
-
-例如 `https://my-notes-xxx.vercel.app/auth/callback`。
+2. **Supabase 里的 Redirect URLs**：Authentication → URL Configuration 中添加你的站点地址
+   `https://你的正式域名/auth/callback`
+   例如 `https://my-notes-xxx.vercel.app/auth/callback`
 
 ---
 
-## 一、配置 GitHub 登录
+## 配置 GitHub 登录
 
-1. 打开 [https://github.com/settings/developers](https://github.com/settings/developers)。
-2. 点击 **New OAuth App**。
+1. 打开 [https://github.com/settings/developers](https://github.com/settings/developers)，进入 **OAuth Apps**。
+2. 点击 **New OAuth App**（注意选 OAuth App，不是 GitHub App）。
 3. 填写：
-   - **Application name**：随便填，如 `My Notes`
-   - **Homepage URL**：你的站点域名，如 `https://my-notes-xxx.vercel.app`
-   - **Authorization callback URL**：`https://你的域名/auth/callback`
+   - **Application name**：随便填，如 `Chronicle`
+   - **Homepage URL**：你的站点正式域名，如 `https://my-notes-xxx.vercel.app`
+   - **Authorization callback URL**（部分界面显示为 Redirect URL / Callback URL，含义相同）：按上文两处回调地址的第 1 条填
 4. 点击 **Register application**。
-5. 复制 **Client ID**，再点击 **Generate a new client secret** 复制 **Client Secret**。
+5. 复制 **Client ID**，再点击 **Generate a new client secret** 复制 **Client Secret**（只显示一次）。
 6. 回到 Supabase 控制台：**Authentication → Providers → GitHub**。
 7. 打开开关，填入 Client ID 和 Client Secret，**Save**。
 
 ---
 
-## 二、配置 Google 登录
-
-1. 打开 [https://console.cloud.google.com](https://console.cloud.google.com)。
-2. 新建一个项目（或选择已有项目）。
-3. 左侧菜单 **APIs & Services → OAuth consent screen**：
-   - 选择 **External**，填写应用名称、支持邮箱，保存。
-   - 在 **Test users** 里添加你自己的邮箱（否则非测试用户无法登录）。
-4. 左侧菜单 **Credentials → Create Credentials → OAuth client ID**：
-   - Application type 选 **Web application**
-   - **Authorized redirect URIs** 填 `https://你的域名/auth/callback`
-5. 创建后复制 **Client ID** 和 **Client Secret**。
-6. 回到 Supabase：**Authentication → Providers → Google**，打开开关，填入并保存。
-
----
-
 ## 常见问题
 
-- **登录后跳回登录页**：确认回调地址和 Supabase 里填的完全一致（注意结尾不要多 `/`）。
-- **Google 提示 403 access denied**：在 OAuth consent screen 的 Test users 里添加了自己的邮箱后，需等待几分钟生效。
-- **GitHub 提示 redirect_uri mismatch**：检查 Homepage URL 与 callback URL 的域名是否与当前站点域名一致。
+- **登录后跳回登录页**：检查 Supabase → Authentication → URL Configuration → Redirect URLs 是否包含你的正式域名 + `/auth/callback`，结尾不要多 `/`。
+- **GitHub 提示 redirect_uri mismatch**：检查 GitHub OAuth App 里的 Authorization callback URL 是否与你 Supabase 项目 ref 完全一致。
+- **邮箱注册收不到确认邮件**：Supabase 免费版发信有限额且有延迟；可在 Authentication → Email 里临时关闭 Confirm email，或等待几分钟重试。
 
-配置完成后，登录页就会出现 GitHub / Google 按钮。
+配置完成后，登录页就会出现 GitHub 登录按钮。

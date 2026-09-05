@@ -84,6 +84,6 @@
 
 ## 下一步
 
-- 配置第三方登录（GitHub / Google）：见 [02-configure-oauth.md](./02-configure-oauth.md)
+- 配置第三方登录（GitHub）：见 [02-configure-oauth.md](./02-configure-oauth.md)
 - 安装浏览器速记插件：见 [03-install-extension.md](./03-install-extension.md)
 - 配对插件：见 [04-pair-extension.md](./04-pair-extension.md)

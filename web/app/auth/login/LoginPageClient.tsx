@@ -48,7 +48,7 @@ export default function LoginPageClient() {
     }
   };
 
-  const oauth = async (provider: "github" | "google") => {
+  const oauth = async (provider: "github") => {
     setErr(null);
     setBusy(true);
     try {
@@ -148,12 +148,9 @@ export default function LoginPageClient() {
           <span className="h-px flex-1 bg-gradient-to-r from-transparent via-ink-200 to-transparent" />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-3">
           <Button variant="default" disabled={busy} onClick={() => oauth("github")}>
-            <Github className="h-4 w-4" /> GitHub
-          </Button>
-          <Button variant="default" disabled={busy} onClick={() => oauth("google")}>
-            <Mail className="h-4 w-4" /> Google
+            <Github className="h-4 w-4" /> GitHub 登录
           </Button>
         </div>
 
