@@ -15,7 +15,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import SerifHeading from "@/components/ui/SerifHeading";
 import MetaText from "@/components/ui/MetaText";
 import CategoryTree from "@/components/CategoryTree";
-import { formatDateTime, type CategoryRaw } from "@/lib/utils";
+import { collectDescendantIds, formatDateTime, type CategoryRaw } from "@/lib/utils";
 
 interface PostItem {
   id: string;
@@ -54,8 +54,9 @@ export default function AdminPostsPage() {
 
   const filtered = useMemo(() => {
     if (!selectedCategory) return posts;
-    return posts.filter((p) => p.category_id === selectedCategory);
-  }, [posts, selectedCategory]);
+    const ids = collectDescendantIds(categories, selectedCategory);
+    return posts.filter((p) => p.category_id && ids.has(p.category_id));
+  }, [posts, selectedCategory, categories]);
 
   const deletePost = async (id: string) => {
     if (!confirm("确定删除这篇文章？此操作不可恢复。")) return;
@@ -122,6 +123,7 @@ export default function AdminPostsPage() {
               categories={categories}
               selectedId={selectedCategory}
               onSelect={(id) => setSelectedCategory(id)}
+              defaultExpandAll
             />
           </div>
           {selectedCategory && (

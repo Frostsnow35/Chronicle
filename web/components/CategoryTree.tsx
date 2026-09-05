@@ -37,6 +37,7 @@ export interface CategoryTreeProps {
   onSelect?: (id: string | null) => void;
   editable?: boolean;
   onChange?: (next: CategoryRaw[]) => void;
+  defaultExpandAll?: boolean;
 }
 
 export default function CategoryTree({
@@ -44,12 +45,24 @@ export default function CategoryTree({
   selectedId,
   onSelect,
   editable = false,
-  onChange
+  onChange,
+  defaultExpandAll = false
 }: CategoryTreeProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [renaming, setRenaming] = useState<string | null>(null);
   const [nameDraft, setNameDraft] = useState("");
   const tree = buildCategoryTree(categories);
+
+  // 默认展开所有有子分类的节点，便于一眼看到完整层级
+  useEffect(() => {
+    if (!defaultExpandAll) return;
+    const parentIds = new Set(
+      categories
+        .filter((c) => categories.some((x) => x.parent_id === c.id))
+        .map((c) => c.id)
+    );
+    setExpanded(parentIds);
+  }, [categories, defaultExpandAll]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })

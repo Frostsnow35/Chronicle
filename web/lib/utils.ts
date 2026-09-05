@@ -85,6 +85,22 @@ export function flattenCategoryTree(nodes: CategoryNode[], depth = 0, out: { id:
   return out;
 }
 
+/** 收集某个分类自身及其所有后代分类的 id 集合。 */
+export function collectDescendantIds(list: CategoryRaw[], id: string): Set<string> {
+  const ids = new Set<string>([id]);
+  let added = true;
+  while (added) {
+    added = false;
+    for (const c of list) {
+      if (c.parent_id && ids.has(c.parent_id) && !ids.has(c.id)) {
+        ids.add(c.id);
+        added = true;
+      }
+    }
+  }
+  return ids;
+}
+
 export function randomToken(bytes = 24) {
   const arr = new Uint8Array(bytes);
   crypto.getRandomValues(arr);
