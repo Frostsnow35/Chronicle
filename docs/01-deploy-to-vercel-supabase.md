@@ -2,7 +2,7 @@
 
 本指南教你用自己的 Vercel 与 Supabase 免费额度，部署一个完全属于你自己的极简文字站点。全程使用你自己的账号和资源，无需连接开发者的任何服务。
 
-整个过程分四步：建数据库 → 跑初始化脚本 → 一键部署 → 首次登录。
+整个过程分六步：建数据库 → 跑初始化脚本 → 确认图片存储 → 获取密钥 → 一键部署 → 首次登录。
 
 ---
 
@@ -25,30 +25,16 @@
 2. 点击 **New query**，新建一个查询窗口。
 3. 打开本仓库的 [`web/supabase/init.sql`](../web/supabase/init.sql)，把**全部内容**复制粘贴到查询窗口。
 4. 点击右下角 **Run**（或按 `Ctrl+Enter`）。
-5. 看到 `Success. No rows returned` 即表示成功，所有表、索引、安全策略已创建。
+5. 看到 `Success. No rows returned` 即表示成功。
 
-> 这个脚本会创建 `categories`、`posts`、`notes`、`api_tokens`、`pairing_tokens`、`settings` 六张表，并为它们启用行级安全（RLS），确保访客只能看到公开文章。
+> 这个脚本会自动完成三件事：创建 `categories`、`posts`、`notes`、`api_tokens`、`pairing_tokens`、`settings` 六张表并启用行级安全（RLS）；自动创建名为 `uploads` 的**公开**图片存储桶；写入一条默认站点设置。你无需再去 Storage 页面手动建桶。
 
 ---
 
-## 第三步：创建图片存储 Bucket
+## 第三步：确认图片存储 Bucket
 
-1. 在左侧菜单点击 **Storage**。
-2. 点击 **New bucket**。
-3. 名称填 `uploads`（必须小写、完全一致）。
-4. 勾选 **Public bucket**（公开读，用于展示图片）。
-5. 点击 **Create bucket**。
-6. 创建后，回到 **SQL Editor**，新建查询，粘贴并运行下面这段（补上图片访问策略）：
-
-```sql
-drop policy if exists "uploads authenticated upload" on storage.objects;
-create policy "uploads authenticated upload" on storage.objects
-    for insert to authenticated with check (bucket_id = 'uploads');
-
-drop policy if exists "uploads public read" on storage.objects;
-create policy "uploads public read" on storage.objects
-    for select using (bucket_id = 'uploads');
-```
+1. 左侧菜单点击 **Storage**，确认已出现名为 `uploads` 的 bucket，且 Public 列为开启状态。
+2. 若初始化脚本执行时因网络原因中断，可在 Storage 手动新建 public bucket `uploads`（名称必须小写且完全一致），再到 SQL Editor 单独运行上方 `init.sql` 中「第 7 节」的策略代码。
 
 ---
 
