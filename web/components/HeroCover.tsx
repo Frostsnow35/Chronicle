@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
 interface HeroCoverProps {
@@ -59,6 +60,16 @@ export default function HeroCover({
             "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>\")"
         }}
       />
+
+      {/* 右上角：作者入口（低调文字链接，无边框） */}
+      <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-end px-6 pt-6">
+        <Link
+          href="/auth/login?next=/admin"
+          className="rounded-full px-4 py-2 text-xs font-medium tracking-[0.2em] text-ink-800/80 backdrop-blur-sm transition hover:bg-white/30 hover:text-ink-950"
+        >
+          作者登录 · 注册
+        </Link>
+      </div>
 
       {/* 中央文字：直接浮于渐变之上，无卡片无按钮框 */}
       <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-6 text-center">
