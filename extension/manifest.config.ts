@@ -22,6 +22,6 @@ export default defineManifest(async () => ({
     service_worker: "src/background/service-worker.ts",
     type: "module"
   },
-  permissions: ["storage", "alarms", "tabs"],
+  permissions: ["storage", "alarms"],
   host_permissions: ["<all_urls>"]
 }));
