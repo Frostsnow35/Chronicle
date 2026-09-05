@@ -38,18 +38,21 @@ export default function AdminLayoutClient({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      const { data } = await supabase.auth.getUser();
-      setEmail(data.user?.email || null);
+      const { data } = await createClient().auth.getUser();
+      if (!cancelled) setEmail(data.user?.email || null);
     })();
-  }, [supabase]);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    await createClient().auth.signOut();
     router.replace("/auth/login");
   };
 

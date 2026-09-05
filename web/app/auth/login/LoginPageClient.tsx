@@ -16,7 +16,6 @@ export default function LoginPageClient() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const supabase = createClient();
   const router = useRouter();
   const next = useSearchParams().get("next") || "/admin";
 
@@ -26,6 +25,7 @@ export default function LoginPageClient() {
     setMsg(null);
     setBusy(true);
     try {
+      const supabase = createClient();
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -52,6 +52,7 @@ export default function LoginPageClient() {
     setErr(null);
     setBusy(true);
     try {
+      const supabase = createClient();
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
