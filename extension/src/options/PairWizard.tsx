@@ -79,7 +79,7 @@ export default function PairWizard({ onPaired }: Props) {
           <span className="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-hermes-orange-100 text-xs font-semibold text-hermes-orange-700">
             2
           </span>
-          点击「生成配对链接」，复制完整的短链接（60 分钟内有效）。
+          点击「生成配对链接」，复制完整的短链接（180 秒内有效）。
         </li>
         <li className="flex items-start gap-2">
           <span className="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-hermes-orange-100 text-xs font-semibold text-hermes-orange-700">

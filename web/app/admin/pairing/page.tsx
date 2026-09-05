@@ -126,7 +126,7 @@ export default function AdminPairingPage() {
           </h3>
         </div>
         <p className="mb-5 text-sm text-ink-600">
-          生成一个 60 分钟有效的配对短链接，复制到插件「设置 → 一键配对」粘贴即可自动完成连接。
+          生成一个 180 秒有效的配对短链接，复制到插件「设置 → 一键配对」粘贴即可自动完成连接。
         </p>
 
         {!shortLink ? (
@@ -145,7 +145,7 @@ export default function AdminPairingPage() {
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-5">
             <div className="mb-3 flex items-center gap-2 text-xs font-medium text-emerald-700">
               <Clock className="h-3.5 w-3.5" />
-              链接有效至 {expiresAt ? new Date(expiresAt).toLocaleString("zh-CN", { hour12: false }) : ""}（60 分钟内使用）
+              链接有效至 {expiresAt ? new Date(expiresAt).toLocaleString("zh-CN", { hour12: false }) : ""}（180 秒内使用）
             </div>
             <div className="flex items-center gap-2">
               <code className="flex-1 break-all rounded-xl bg-white/80 px-4 py-3 font-mono text-xs text-ink-800 border border-white/60">

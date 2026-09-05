@@ -10,9 +10,8 @@ import {
   Settings,
   LogOut,
   LayoutDashboard,
-  NotebookPen,
   Download,
-  Sparkles
+  ExternalLink
 } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import { createClient } from "@/lib/supabase/client";
@@ -27,7 +26,6 @@ const NAV: NavItem[] = [
   { href: "/admin", label: "文章", icon: <LayoutDashboard className="h-4 w-4" /> },
   { href: "/admin/editor", label: "写文章", icon: <PenLine className="h-4 w-4" /> },
   { href: "/admin/categories", label: "分类", icon: <FolderTree className="h-4 w-4" /> },
-  { href: "/admin/notes", label: "笔记", icon: <NotebookPen className="h-4 w-4" /> },
   { href: "/admin/plugin", label: "安装插件", icon: <Download className="h-4 w-4" /> },
   { href: "/admin/pairing", label: "插件配对", icon: <Puzzle className="h-4 w-4" /> },
   { href: "/admin/settings", label: "设置", icon: <Settings className="h-4 w-4" /> }
@@ -64,12 +62,17 @@ export default function AdminLayoutClient({
         {/* 左侧导航 */}
         <aside className="md:sticky md:top-6 md:self-start">
           <GlassCard className="p-5">
-            <Link href="/" className="flex items-center gap-2">
+            <Link
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center gap-2"
+            >
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-hermes-orange-500 to-sky-blue-500 shadow-glass">
-                <Sparkles className="h-4 w-4 text-white" />
+                <ExternalLink className="h-4 w-4 text-white" />
               </span>
               <div className="font-serif text-lg font-semibold text-ink-950 leading-none">
-                写作后台
+                返回首页
               </div>
             </Link>
 

@@ -53,11 +53,25 @@ export async function middleware(request: NextRequest) {
     data: { user }
   } = await supabase.auth.getUser();
 
+  // access token 过期时 getUser 返回 null，这里用 refresh token 尝试续期，
+  // 避免刷新页面、新开标签页或重开浏览器后被误判为未登录。
+  let currentUser = user;
+  if (!currentUser) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const refreshToken = sessionData.session?.refresh_token;
+    if (refreshToken) {
+      const { data: refreshed } = await supabase.auth.refreshSession({
+        refresh_token: refreshToken
+      });
+      currentUser = refreshed.session?.user ?? refreshed.user ?? null;
+    }
+  }
+
   const pathname = request.nextUrl.pathname;
   const isPostOrCategoryRoute = /^\/(posts|categories)\/.*/.test(pathname);
 
   // 1. /admin/** 必须登录
-  if (pathname.startsWith("/admin") && !user) {
+  if (pathname.startsWith("/admin") && !currentUser) {
     const redirect = new URL("/auth/login", request.url);
     redirect.searchParams.set("next", pathname);
     return NextResponse.redirect(redirect);
@@ -73,7 +87,7 @@ export async function middleware(request: NextRequest) {
     const isPublicApi = PUBLIC_API_PREFIXES.some(
       (p) => pathname === p || pathname.startsWith(p + "/")
     );
-    if (isPublicApi || user) return response;
+    if (isPublicApi || currentUser) return response;
 
     const authHeader = request.headers.get("authorization") || "";
     if (authHeader.startsWith("Bearer ")) return response;

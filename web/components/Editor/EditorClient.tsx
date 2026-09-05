@@ -12,9 +12,10 @@ import type { CategoryRaw } from "@/lib/utils";
 
 interface EditorClientProps {
   postId?: string;
+  noteId?: string;
 }
 
-export default function EditorClient({ postId }: EditorClientProps) {
+export default function EditorClient({ postId, noteId }: EditorClientProps) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
@@ -25,7 +26,7 @@ export default function EditorClient({ postId }: EditorClientProps) {
     json: {}
   });
   const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(!!postId);
+  const [loading, setLoading] = useState(!!postId || !!noteId);
   const [error, setError] = useState<string | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
@@ -54,6 +55,22 @@ export default function EditorClient({ postId }: EditorClientProps) {
     })();
   }, [postId]);
 
+  useEffect(() => {
+    if (!noteId) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/notes/${noteId}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("加载速记失败");
+        const n = await res.json();
+        setContent({ html: n.content_html || "", json: n.content_json || {} });
+      } catch (e: any) {
+        setError(e?.message || "加载失败");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [noteId]);
+
   const handleSave = async (publish = true) => {
     if (!title.trim()) {
       setError("请先填写文章标题。");
@@ -76,6 +93,12 @@ export default function EditorClient({ postId }: EditorClientProps) {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error || "保存失败");
+      // 从速记转为文章：内容已写入文章，删除原速记
+      if (!postId && noteId) {
+        await fetch(`/api/notes/${noteId}`, { method: "DELETE" }).catch(
+          () => {}
+        );
+      }
       if (!postId) {
         router.replace(`/admin/editor/${json.id}`);
       }

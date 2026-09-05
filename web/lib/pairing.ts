@@ -29,7 +29,7 @@ export async function generatePairingLink(
   shortLink: string;
 }> {
   const token = "pair_" + randomToken(32);
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 分钟
+  const expiresAt = new Date(Date.now() + 180 * 1000); // 180 秒
   const admin = getAdminClient();
   const { error } = await admin.from("pairing_tokens").insert({
     token,

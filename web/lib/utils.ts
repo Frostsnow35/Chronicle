@@ -106,3 +106,15 @@ export function randomToken(bytes = 24) {
   crypto.getRandomValues(arr);
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
 }
+
+/** 给正文 HTML 中的 <img> 注入懒加载与异步解码，减少首屏图片请求。 */
+export function lazyLoadImages(html: string): string {
+  return html.replace(/<img\b([^>]*?)(\/?)>/gi, (_match, ...rest) => {
+    const attrs = String(rest[0] ?? "");
+    const selfClose = String(rest[1] ?? "");
+    let a = attrs;
+    if (!/loading=/i.test(a)) a += ' loading="lazy"';
+    if (!/decoding=/i.test(a)) a += ' decoding="async"';
+    return `<img${a}${selfClose}>`;
+  });
+}

@@ -9,13 +9,20 @@ import {
   EyeOff,
   Edit3,
   Trash2,
-  Plus
+  Plus,
+  NotebookPen,
+  ArrowRight
 } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import SerifHeading from "@/components/ui/SerifHeading";
 import MetaText from "@/components/ui/MetaText";
 import CategoryTree from "@/components/CategoryTree";
-import { collectDescendantIds, formatDateTime, type CategoryRaw } from "@/lib/utils";
+import {
+  collectDescendantIds,
+  formatDateTime,
+  lazyLoadImages,
+  type CategoryRaw
+} from "@/lib/utils";
 
 interface PostItem {
   id: string;
@@ -29,11 +36,21 @@ interface PostItem {
   category?: { id: string; name: string } | null;
 }
 
+interface Note {
+  id: string;
+  content_html: string;
+  source_url: string | null;
+  images: string[];
+  created_at: string;
+  updated_at: string;
+}
+
 type View = "timeline" | "tree";
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [categories, setCategories] = useState<CategoryRaw[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [view, setView] = useState<View>("timeline");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,6 +62,9 @@ export default function AdminPostsPage() {
     const catRes = await fetch("/api/categories", { cache: "no-store" });
     const catJson = await catRes.json();
     setCategories(Array.isArray(catJson) ? catJson : []);
+    const noteRes = await fetch("/api/notes?limit=20", { cache: "no-store" });
+    const noteJson = await noteRes.json();
+    setNotes(Array.isArray(noteJson) ? noteJson : []);
     setLoading(false);
   }, []);
 
@@ -61,6 +81,12 @@ export default function AdminPostsPage() {
   const deletePost = async (id: string) => {
     if (!confirm("确定删除这篇文章？此操作不可恢复。")) return;
     await fetch(`/api/posts/${id}`, { method: "DELETE" });
+    load();
+  };
+
+  const deleteNote = async (id: string) => {
+    if (!confirm("确定删除这条速记？")) return;
+    await fetch(`/api/notes/${id}`, { method: "DELETE" });
     load();
   };
 
@@ -134,6 +160,53 @@ export default function AdminPostsPage() {
               ← 清除分类筛选
             </button>
           )}
+        </GlassCard>
+      )}
+
+      {!loading && notes.length > 0 && (
+        <GlassCard className="mb-8 p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <NotebookPen className="h-5 w-5 text-hermes-orange-500" />
+            <h3 className="font-serif text-xl font-semibold text-ink-950">
+              待处理速记
+            </h3>
+            <span className="ml-auto text-xs text-ink-500">
+              {notes.length} 条
+            </span>
+          </div>
+          <div className="space-y-3">
+            {notes.map((n) => (
+              <div
+                key={n.id}
+                className="rounded-2xl border border-white/60 bg-white/60 p-4"
+              >
+                <div className="mb-2 flex items-center justify-between">
+                  <MetaText>{formatDateTime(n.created_at)}</MetaText>
+                  <div className="flex items-center gap-1">
+                    <Link
+                      href={`/admin/editor?note=${n.id}`}
+                      className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-hermes-orange-700 hover:bg-hermes-orange-50"
+                    >
+                      转为文章 <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                    <button
+                      onClick={() => deleteNote(n.id)}
+                      className="rounded-lg p-2 text-ink-500 hover:bg-white hover:text-red-600"
+                      aria-label="删除速记"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <div
+                  className="prose-minimal max-h-40 overflow-hidden"
+                  dangerouslySetInnerHTML={{
+                    __html: lazyLoadImages(n.content_html)
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         </GlassCard>
       )}
 
