@@ -100,8 +100,8 @@ export default function AdminSettingsPage() {
           onChange={(v) => update("footer_text", v)}
         />
         <Field
-          label="插件商店地址（Chrome 应用店）"
-          hint="上架插件后填这里，让后台「安装插件」按钮可一键跳转；例如 https://chromewebstore.google.com/detail/xxxx"
+          label="插件商店地址（Edge 应用商店）"
+          hint="上架插件后填这里，让后台「安装插件」按钮可一键跳转；例如 https://microsoftedge.microsoft.com/addons/detail/xxxx"
           value={form.chrome_web_store_url}
           onChange={(v) => update("chrome_web_store_url", v)}
         />

@@ -46,14 +46,14 @@ export default function AdminPluginPage() {
         <div className="mb-4 flex items-center gap-2">
           <Puzzle className="h-5 w-5 text-hermes-orange-500" />
           <h3 className="font-serif text-xl font-semibold text-ink-950">
-            一键安装（Chrome 应用店）
+            一键安装（Edge 应用商店）
           </h3>
         </div>
 
         {storeUrl ? (
           <>
             <p className="mb-5 text-sm text-ink-600">
-              点击下方按钮，在新页面点击「添加至 Chrome」并确认授权，即可完成安装。
+              点击下方按钮，在 Microsoft Edge 应用商店页面点击「获取」并确认，即可完成安装。
             </p>
             <a
               href={storeUrl}
@@ -62,15 +62,15 @@ export default function AdminPluginPage() {
               className="glass-button-primary inline-flex"
             >
               <ExternalLink className="h-4 w-4" />
-              前往 Chrome 应用店安装
+              前往 Edge 应用商店安装
             </a>
 
             <div className="mt-6 rounded-2xl bg-white/50 p-4 text-xs leading-relaxed text-ink-600">
               <p className="font-semibold text-ink-800">安装步骤：</p>
               <ol className="mt-2 list-decimal space-y-1 pl-5">
-                <li>点击上方按钮，跳转到 Chrome 应用店该插件页</li>
-                <li>点击「添加至 Chrome」，在弹窗中确认</li>
-                <li>安装完成后，浏览器工具栏会出现 Chronicle 图标</li>
+                <li>使用 Microsoft Edge 打开上方按钮跳转的商店页面</li>
+                <li>点击「获取」，在弹窗中确认安装</li>
+                <li>安装完成后，工具栏会出现 Chronicle 图标</li>
                 <li>回到「插件配对」页生成配对链接，完成插件与站点的连接</li>
               </ol>
             </div>
@@ -78,19 +78,19 @@ export default function AdminPluginPage() {
         ) : (
           <>
             <p className="mb-5 text-sm text-ink-600">
-              尚未上架 Chrome 应用店。完成上架后，把商店地址填到「设置 → 插件商店地址」，这里就会出现一键安装按钮。
+              尚未上架 Edge 应用商店。完成上架后，把商店地址填到「设置 → 插件商店地址」，这里就会出现一键安装按钮。
             </p>
             <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-5 text-sm text-amber-800">
               <p className="font-semibold">上架需要三步：</p>
               <ol className="mt-2 list-decimal space-y-1 pl-5">
-                <li>注册 Chrome 开发者账号（一次性 5 美元）</li>
-                <li>按上架文档打包插件 ZIP 并准备图标与截图</li>
-                <li>提交商店审核，通过后复制商店地址回填到设置</li>
+                <li>在 Microsoft Partner Center 注册开发者账号</li>
+                <li>按上架文档提交打包 ZIP 并填写商店资料</li>
+                <li>通过审核后复制商店地址回填到设置</li>
               </ol>
               <p className="mt-3">
                 详细步骤见{' '}
                 <a
-                  href="https://github.com/Frostsnow35/Chronicle/blob/main/docs/06-publish-chrome-web-store.md"
+                  href="https://github.com/Frostsnow35/Chronicle/blob/main/docs/06-publish-edge-addons.md"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-medium underline underline-offset-2"
