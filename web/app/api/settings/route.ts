@@ -9,10 +9,10 @@ import { getAdminClient } from "@/lib/supabase/admin";
 export const runtime = "nodejs";
 
 const DEFAULT_SITE = {
-  name: "我的文字花园",
-  tagline: "在这里，留下每一刻的思考。",
-  author: "作者",
-  footer_text: "愿每个字都不被辜负"
+  name: "Chronicle",
+  tagline: "用文字锚定时间",
+  author: "霜雪",
+  footer_text: "为流动的日子留下凭据"
 };
 
 export async function GET() {

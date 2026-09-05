@@ -10,8 +10,8 @@ interface HeroCoverProps {
 }
 
 export default function HeroCover({
-  siteName = "我的文字花园",
-  tagline = "在这里，留下每一刻的思考。"
+  siteName = "Chronicle",
+  tagline = "用文字锚定时间"
 }: HeroCoverProps) {
   const scrollToList = () => {
     const el = document.getElementById("post-list");

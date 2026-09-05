@@ -29,7 +29,7 @@ export default function OptionsApp() {
             <Sparkles className="h-7 w-7 text-white" />
           </div>
           <h1 className="font-serif text-3xl font-semibold text-ink-950">
-            极简笔记 · 插件配置
+            Chronicle · 插件配置
           </h1>
           <p className="mt-2 text-sm text-ink-600">
             把浏览器插件连接到你自己部署的站点，所有笔记都保存在你的数据库中。

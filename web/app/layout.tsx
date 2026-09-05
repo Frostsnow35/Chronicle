@@ -4,13 +4,13 @@ import GradientBackground from "@/components/GradientBackground";
 
 export const metadata: Metadata = {
   title: {
-    default: "我的文字花园",
-    template: "%s · 我的文字花园"
+    default: "Chronicle",
+    template: "%s · Chronicle"
   },
-  description: "一个极简主义的个人文字记录空间。",
+  description: "用文字锚定时间。",
   openGraph: {
-    title: "我的文字花园",
-    description: "极简主义的个人文字记录空间。",
+    title: "Chronicle",
+    description: "用文字锚定时间。",
     type: "website"
   }
 };

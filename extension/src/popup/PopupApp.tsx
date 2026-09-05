@@ -32,7 +32,7 @@ export default function PopupApp() {
             <BookOpen className="h-7 w-7 text-white" />
           </div>
           <h1 className="font-serif text-2xl font-semibold text-ink-950">
-            极简笔记
+            Chronicle
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-ink-700">
             还没有连接到你的站点。
