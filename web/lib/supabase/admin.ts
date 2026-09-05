@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../database.types";
+import { supabaseUrl, supabaseSecretKey } from "./env";
 
 let admin: SupabaseClient<Database> | undefined;
 
@@ -9,14 +10,14 @@ let admin: SupabaseClient<Database> | undefined;
  */
 export function getAdminClient(): SupabaseClient<Database> {
   if (!admin) {
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    if (!supabaseSecretKey()) {
       throw new Error(
-        "缺少环境变量 SUPABASE_SERVICE_ROLE_KEY，无法执行服务端操作。"
+        "缺少环境变量 SUPABASE_SECRET_KEY / SUPABASE_SERVICE_ROLE_KEY，无法执行服务端操作。"
       );
     }
     admin = createClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      supabaseUrl(),
+      supabaseSecretKey(),
       {
         auth: {
           persistSession: false,

@@ -1,8 +1,16 @@
-# 极简文字记录平台
+# Chronicle · 极简文字记录平台
 
 一套「独立部署的个人文字站点 + Chromium 浏览器速记插件」的完整开源方案。
 
 每个用户使用自己的 Vercel + Supabase 免费额度部署自己的站点与数据库，拥有自己的独立域名，数据完全自管。
+
+## 一键部署
+
+点击下方按钮，用你自己的 Vercel + Supabase 免费额度部署一个完全属于自己的站点（数据自管，无需连接任何第三方服务）：
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFrostsnow35%2FChronicle&root-directory=web&env=SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,SUPABASE_SECRET_KEY,NEXT_PUBLIC_SITE_URL)
+
+> 部署前请先按 [部署文档](./docs/01-deploy-to-vercel-supabase.md) 创建 Supabase 数据库并运行初始化脚本，再回到此处点击部署按钮。
 
 ## 特性
 

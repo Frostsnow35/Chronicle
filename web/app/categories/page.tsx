@@ -3,12 +3,13 @@ import SerifHeading from "@/components/ui/SerifHeading";
 import MetaText from "@/components/ui/MetaText";
 import GlassCard from "@/components/ui/GlassCard";
 import { getAdminClient } from "@/lib/supabase/admin";
+import { supabaseSecretKey } from "@/lib/supabase/env";
 import { buildCategoryTree, type CategoryRaw } from "@/lib/utils";
 
 export const metadata = { title: "分类" };
 
 async function getCategories(): Promise<CategoryRaw[]> {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return [];
+  if (!supabaseSecretKey()) return [];
   try {
     const admin = getAdminClient();
     const { data } = await admin

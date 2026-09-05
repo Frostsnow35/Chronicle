@@ -1,4 +1,5 @@
 import { getAdminClient } from "@/lib/supabase/admin";
+import { supabaseSecretKey } from "@/lib/supabase/env";
 
 export interface SiteSettings {
   name: string;
@@ -48,7 +49,7 @@ export async function getPublicPosts(options?: {
   categoryId?: string;
   limit?: number;
 }): Promise<PublicPost[]> {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return [];
+  if (!supabaseSecretKey()) return [];
   try {
     const admin = getAdminClient();
     let query = admin
@@ -71,7 +72,7 @@ export async function getPublicPosts(options?: {
 }
 
 export async function getPublicPostBySlug(slug: string): Promise<PublicPost | null> {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
+  if (!supabaseSecretKey()) return null;
   try {
     const admin = getAdminClient();
     const { data, error } = await admin
@@ -90,7 +91,7 @@ export async function getPublicPostBySlug(slug: string): Promise<PublicPost | nu
 }
 
 export async function getCategoryWithPosts(categoryId: string) {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!supabaseSecretKey()) {
     return { category: null, posts: [] as PublicPost[] };
   }
   try {

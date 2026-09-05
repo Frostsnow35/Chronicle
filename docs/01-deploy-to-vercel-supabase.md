@@ -41,10 +41,10 @@
 ## 第四步：获取连接密钥
 
 1. 左侧菜单点击 **Project Settings**（齿轮图标）→ **API**。
-2. 复制以下三项的值，保存到记事本，马上要用：
-   - **Project URL**（形如 `https://xxxx.supabase.co`）
-   - **anon public** key（`NEXT_PUBLIC_SUPABASE_ANON_KEY`）
-   - **service_role** key（`SUPABASE_SERVICE_ROLE_KEY`）
+2. 在 **API Keys** 区域复制以下三项（新版面板变量名），保存到记事本，马上要用：
+   - **Project URL**（`SUPABASE_URL`，形如 `https://xxxx.supabase.co`）
+   - **Publishable key**（`SUPABASE_PUBLISHABLE_KEY`）
+   - **Secret key**（`SUPABASE_SECRET_KEY`）
 
 > `service_role` key 拥有全部权限，**绝不能**泄露到前端。本项目的部署环境变量会安全地把它放在服务端。
 
@@ -59,9 +59,9 @@
 
 | 变量名 | 值 |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | 你的 Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 你的 anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | 你的 service_role key |
+| `SUPABASE_URL` | 你的 Project URL |
+| `SUPABASE_PUBLISHABLE_KEY` | 你的 Publishable key |
+| `SUPABASE_SECRET_KEY` | 你的 Secret key |
 | `NEXT_PUBLIC_SITE_URL` | 部署完成后你的域名（可先填 `https://你的项目名.vercel.app`） |
 
 5. 点击 **Deploy**，等待构建完成。
