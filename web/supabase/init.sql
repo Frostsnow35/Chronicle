@@ -209,6 +209,7 @@ insert into public.settings (key, value) values
         'name', 'Chronicle',
         'tagline', '用文字锚定时间',
         'author', '霜雪',
-        'footer_text', '为流动的日子留下凭据'
+        'footer_text', '为流动的日子留下凭据',
+        'chrome_web_store_url', ''
     ))
 on conflict (key) do nothing;

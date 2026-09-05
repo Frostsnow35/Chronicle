@@ -11,6 +11,7 @@ import {
   LogOut,
   LayoutDashboard,
   NotebookPen,
+  Download,
   Sparkles
 } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
@@ -27,6 +28,7 @@ const NAV: NavItem[] = [
   { href: "/admin/editor", label: "写文章", icon: <PenLine className="h-4 w-4" /> },
   { href: "/admin/categories", label: "分类", icon: <FolderTree className="h-4 w-4" /> },
   { href: "/admin/notes", label: "笔记", icon: <NotebookPen className="h-4 w-4" /> },
+  { href: "/admin/plugin", label: "安装插件", icon: <Download className="h-4 w-4" /> },
   { href: "/admin/pairing", label: "插件配对", icon: <Puzzle className="h-4 w-4" /> },
   { href: "/admin/settings", label: "设置", icon: <Settings className="h-4 w-4" /> }
 ];

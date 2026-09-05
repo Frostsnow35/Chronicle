@@ -12,7 +12,8 @@ const DEFAULT_SITE = {
   name: "Chronicle",
   tagline: "用文字锚定时间",
   author: "霜雪",
-  footer_text: "为流动的日子留下凭据"
+  footer_text: "为流动的日子留下凭据",
+  chrome_web_store_url: ""
 };
 
 export async function GET() {
@@ -40,7 +41,8 @@ export async function PUT(req: NextRequest) {
       name: body.name ?? DEFAULT_SITE.name,
       tagline: body.tagline ?? DEFAULT_SITE.tagline,
       author: body.author ?? DEFAULT_SITE.author,
-      footer_text: body.footer_text ?? DEFAULT_SITE.footer_text
+      footer_text: body.footer_text ?? DEFAULT_SITE.footer_text,
+      chrome_web_store_url: body.chrome_web_store_url ?? DEFAULT_SITE.chrome_web_store_url
     };
     const { data, error } = await admin
       .from("settings")

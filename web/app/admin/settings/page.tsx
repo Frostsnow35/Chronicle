@@ -11,6 +11,7 @@ interface SiteSettings {
   tagline: string;
   author: string;
   footer_text: string;
+  chrome_web_store_url: string;
 }
 
 export default function AdminSettingsPage() {
@@ -18,7 +19,8 @@ export default function AdminSettingsPage() {
     name: "",
     tagline: "",
     author: "",
-    footer_text: ""
+    footer_text: "",
+    chrome_web_store_url: ""
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -96,6 +98,12 @@ export default function AdminSettingsPage() {
           hint="显示在页面底部"
           value={form.footer_text}
           onChange={(v) => update("footer_text", v)}
+        />
+        <Field
+          label="插件商店地址（Chrome 应用店）"
+          hint="上架插件后填这里，让后台「安装插件」按钮可一键跳转；例如 https://chromewebstore.google.com/detail/xxxx"
+          value={form.chrome_web_store_url}
+          onChange={(v) => update("chrome_web_store_url", v)}
         />
 
         {msg && (
