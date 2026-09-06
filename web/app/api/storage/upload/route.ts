@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiErrorResponse, readJsonBody, resolveAuthorFromRequest } from "@/lib/auth";
 import { getAdminClient } from "@/lib/supabase/admin";
-import sharp from "sharp";
 
 export const runtime = "nodejs";
 
@@ -12,17 +11,25 @@ export const runtime = "nodejs";
  */
 async function compressImage(
   buf: Buffer,
-  mimeType: string
+  mimeType: string,
+  ext: string
 ): Promise<{ buf: Buffer; mimeType: string; ext: string }> {
   if (mimeType === "image/svg+xml" || mimeType === "image/gif") {
-    return { buf, mimeType, ext: mimeType === "image/svg+xml" ? "svg" : "gif" };
+    return { buf, mimeType, ext };
   }
-  const out = await sharp(buf)
-    .rotate()
-    .resize({ width: 1920, withoutEnlargement: true })
-    .webp({ quality: 80 })
-    .toBuffer();
-  return { buf: out, mimeType: "image/webp", ext: "webp" };
+  try {
+    const sharp = (await import("sharp")).default;
+    const out = await sharp(buf)
+      .rotate()
+      .resize({ width: 1920, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+    return { buf: out, mimeType: "image/webp", ext: "webp" };
+  } catch {
+    // 压缩失败（如 sharp 原生模块不可用或图片格式异常）时退回原图，
+    // 保证图片仍能保存并返回公开 URL，避免正文静默丢图。
+    return { buf, mimeType, ext };
+  }
 }
 
 /**
@@ -75,7 +82,7 @@ export async function POST(req: NextRequest) {
     }
 
     const admin = getAdminClient();
-    const compressed = await compressImage(buf, mimeType);
+    const compressed = await compressImage(buf, mimeType, ext);
     buf = compressed.buf;
     mimeType = compressed.mimeType;
     ext = compressed.ext;

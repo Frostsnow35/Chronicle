@@ -10,8 +10,14 @@ export interface Draft {
   updatedAt: number;
 }
 
+export interface FabPosition {
+  x: number;
+  y: number;
+}
+
 const KEY_PROFILE = "profile";
 const KEY_DRAFT = "draft";
+const KEY_FAB_POSITION = "fab_position";
 
 export function getProfile(): Promise<Profile | null> {
   return new Promise((resolve) => {
@@ -90,4 +96,26 @@ export async function testConnection(p: Profile): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export function getFabPosition(): Promise<FabPosition | null> {
+  return new Promise((resolve) => {
+    try {
+      chrome.storage.local.get([KEY_FAB_POSITION], (res) => {
+        resolve((res[KEY_FAB_POSITION] as FabPosition) || null);
+      });
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+export function saveFabPosition(pos: FabPosition): Promise<void> {
+  return new Promise((resolve) => {
+    try {
+      chrome.storage.local.set({ [KEY_FAB_POSITION]: pos }, () => resolve());
+    } catch {
+      resolve();
+    }
+  });
 }

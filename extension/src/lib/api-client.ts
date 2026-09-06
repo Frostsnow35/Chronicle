@@ -12,6 +12,15 @@ export interface NoteResult {
   created_at: string;
 }
 
+export interface NoteItem {
+  id: string;
+  content_html: string;
+  source_url: string | null;
+  images: string[];
+  created_at: string;
+  updated_at: string;
+}
+
 const KEY_PENDING = "pending_notes";
 const REQUEST_TIMEOUT = 15000;
 
@@ -91,6 +100,30 @@ export async function exchangePairingToken(
     throw new Error(`配对失败 (HTTP ${r.status})`);
   }
   return r.json() as Promise<{ apiToken: string }>;
+}
+
+/** 拉取作者最近的速记列表。 */
+export async function listNotes(p: Profile, limit = 30): Promise<NoteItem[]> {
+  const base = p.siteUrl.replace(/\/$/, "");
+  const r = await fetchWithTimeout(`${base}/api/notes?limit=${limit}`, {
+    method: "GET",
+    headers: headers(p.apiToken)
+  });
+  if (r.ok) return r.json() as Promise<NoteItem[]>;
+  if (r.status === 401) throw new Error("授权失效，请在插件设置中重新配对。");
+  throw new Error(`加载速记失败 (HTTP ${r.status})`);
+}
+
+/** 删除单条速记。 */
+export async function deleteNote(p: Profile, id: string): Promise<void> {
+  const base = p.siteUrl.replace(/\/$/, "");
+  const r = await fetchWithTimeout(`${base}/api/notes/${id}`, {
+    method: "DELETE",
+    headers: headers(p.apiToken)
+  });
+  if (r.ok || r.status === 404) return;
+  if (r.status === 401) throw new Error("授权失效，请在插件设置中重新配对。");
+  throw new Error(`删除速记失败 (HTTP ${r.status})`);
 }
 
 async function inlineImagesToStorage(
