@@ -5,7 +5,9 @@ import {
   Link as LinkIcon,
   KeyRound,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  X,
+  ExternalLink
 } from "lucide-react";
 import PairWizard from "./PairWizard";
 import ManualConfig from "./ManualConfig";
@@ -13,13 +15,61 @@ import { Profile, getProfile } from "@/lib/storage";
 
 type Tab = "pair" | "manual";
 
+/** 配对成功后自动关闭本页的等待时长（毫秒）。 */
+const CLOSE_DELAY_MS = 1000;
+
 export default function OptionsApp() {
   const [tab, setTab] = useState<Tab>("pair");
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [justPaired, setJustPaired] = useState(false);
 
   useEffect(() => {
     getProfile().then(setProfile);
   }, []);
+
+  // 配对成功后短暂停留，然后自动关闭设置页标签，回到用户原来的浏览上下文。
+  useEffect(() => {
+    if (!justPaired) return;
+    const timer = setTimeout(() => window.close(), CLOSE_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [justPaired]);
+
+  const handlePaired = (p: Profile) => {
+    setProfile(p);
+    setJustPaired(true);
+  };
+
+  if (justPaired) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-hermes-orange-50/70 via-white to-sky-blue-50/70 px-6 font-sans">
+        <div className="w-full max-w-md rounded-3xl border border-white/60 bg-white/80 p-10 text-center shadow-glass-lg backdrop-blur-2xl">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+            <CheckCircle2 className="h-9 w-9 text-emerald-600" />
+          </div>
+          <h1 className="font-serif text-2xl font-semibold text-ink-950">
+            配对成功
+          </h1>
+          <p className="mt-3 break-all text-sm text-ink-600">
+            已连接到
+            <span className="font-medium text-ink-800">{profile?.siteUrl}</span>
+          </p>
+          <p className="mt-4 text-xs text-ink-400">本页即将自动关闭…</p>
+          <button
+            type="button"
+            onClick={() => window.close()}
+            className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-5 py-2.5 text-sm font-medium text-ink-700 shadow-glass transition hover:bg-white"
+          >
+            <X className="h-4 w-4" />
+            立即关闭本页
+          </button>
+          <p className="mt-4 flex items-center justify-center gap-1 text-xs text-ink-400">
+            <ExternalLink className="h-3 w-3" />
+            若没有自动关闭，直接关闭此标签页即可，不影响使用。
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-hermes-orange-50/70 via-white to-sky-blue-50/70 py-12 font-sans">
@@ -62,9 +112,9 @@ export default function OptionsApp() {
 
         <div className="rounded-3xl border border-white/60 bg-white/75 p-8 shadow-glass-lg backdrop-blur-2xl">
           {tab === "pair" ? (
-            <PairWizard onPaired={(p) => setProfile(p)} />
+            <PairWizard onPaired={handlePaired} />
           ) : (
-            <ManualConfig onSaved={(p) => setProfile(p)} />
+            <ManualConfig onSaved={handlePaired} />
           )}
         </div>
 

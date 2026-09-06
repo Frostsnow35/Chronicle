@@ -33,6 +33,7 @@ button {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   cursor: grab;
   touch-action: none;
+  z-index: 2147483647;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .fab:hover {
@@ -55,6 +56,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  z-index: 2147483647;
 }
 .menu-item {
   display: flex;
@@ -78,7 +80,7 @@ button {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 1;
+  z-index: 2147483647;
 }
 
 .panel {
