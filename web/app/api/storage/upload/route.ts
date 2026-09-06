@@ -1,8 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiErrorResponse, readJsonBody, resolveAuthorFromRequest } from "@/lib/auth";
 import { getAdminClient } from "@/lib/supabase/admin";
+import sharp from "sharp";
 
 export const runtime = "nodejs";
+
+/**
+ * 压缩上传图片：
+ *  - 光栅图（jpeg/png/webp 等）转 webp、限宽 1920、质量 80、按 EXIF 自动旋转
+ *  - svg / gif 原样返回（避免破坏矢量与动图）
+ */
+async function compressImage(
+  buf: Buffer,
+  mimeType: string
+): Promise<{ buf: Buffer; mimeType: string; ext: string }> {
+  if (mimeType === "image/svg+xml" || mimeType === "image/gif") {
+    return { buf, mimeType, ext: mimeType === "image/svg+xml" ? "svg" : "gif" };
+  }
+  const out = await sharp(buf)
+    .rotate()
+    .resize({ width: 1920, withoutEnlargement: true })
+    .webp({ quality: 80 })
+    .toBuffer();
+  return { buf: out, mimeType: "image/webp", ext: "webp" };
+}
 
 /**
  * 图片上传接口：
@@ -54,6 +75,10 @@ export async function POST(req: NextRequest) {
     }
 
     const admin = getAdminClient();
+    const compressed = await compressImage(buf, mimeType);
+    buf = compressed.buf;
+    mimeType = compressed.mimeType;
+    ext = compressed.ext;
     const path = `uploads/${authorId}/${Date.now()}-${Math.random()
       .toString(36)
       .slice(2, 8)}.${ext}`;

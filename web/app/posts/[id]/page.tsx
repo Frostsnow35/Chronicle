@@ -6,7 +6,7 @@ import MetaText from "@/components/ui/MetaText";
 import ShareButtons from "@/components/ShareButtons";
 import GlassCard from "@/components/ui/GlassCard";
 import { getPublicPostBySlug, getSiteSettings } from "@/lib/data";
-import { formatDate } from "@/lib/utils";
+import { formatDate, lazyLoadImages } from "@/lib/utils";
 
 export async function generateMetadata({
   params
@@ -54,7 +54,9 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 
         <div
           className="prose-minimal"
-          dangerouslySetInnerHTML={{ __html: post.content_html || post.excerpt }}
+          dangerouslySetInnerHTML={{
+            __html: lazyLoadImages(post.content_html || post.excerpt)
+          }}
         />
 
         <div className="mt-14">

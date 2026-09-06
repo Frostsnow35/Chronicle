@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Search } from "lucide-react";
 import HeroCover from "@/components/HeroCover";
 import PostCard from "@/components/PostCard";
 import MetaText from "@/components/ui/MetaText";
@@ -20,12 +21,21 @@ export default async function HomePage() {
           <span className="text-xs font-medium uppercase tracking-[0.25em] text-ink-500">
             {site.name}
           </span>
-          <Link
-            href="/auth/login?next=/admin"
-            className="text-sm font-sans text-ink-700 transition hover:text-hermes-orange-600"
-          >
-            作者登录 · 注册 →
-          </Link>
+          <div className="flex items-center gap-5">
+            <Link
+              href="/search"
+              aria-label="搜索文章"
+              className="text-ink-500 transition hover:text-hermes-orange-600"
+            >
+              <Search className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/auth/login?next=/admin"
+              className="text-sm font-sans text-ink-700 transition hover:text-hermes-orange-600"
+            >
+              作者登录 · 注册 →
+            </Link>
+          </div>
         </div>
 
         <div className="mb-12 flex items-end justify-between">

@@ -49,18 +49,18 @@ const config: Config = {
       },
       fontFamily: {
         serif: [
-          '"Noto Serif SC"',
           '"Source Han Serif SC"',
           '"Songti SC"',
+          '"STSong"',
           '"SimSun"',
-          '"Lora"',
           "Georgia",
+          '"Times New Roman"',
           "serif"
         ],
         sans: [
-          "Inter",
           '"PingFang SC"',
           '"Microsoft YaHei"',
+          '"Hiragino Sans GB"',
           "system-ui",
           "-apple-system",
           "sans-serif"
