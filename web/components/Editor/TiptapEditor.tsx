@@ -1,23 +1,30 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
+import Highlight from "@tiptap/extension-highlight";
 import {
   Bold,
   Italic,
   Underline as UnderlineIcon,
+  Strikethrough,
+  Highlighter,
+  Code,
+  Braces,
   List,
   ListOrdered,
   Quote,
   Heading2,
   Heading3,
   ImagePlus,
+  ListTree,
   Undo2,
-  Redo2
+  Redo2,
+  X
 } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 
@@ -41,6 +48,27 @@ async function uploadImageViaApi(file: File): Promise<string | null> {
   return d?.url || null;
 }
 
+interface HeadingItem {
+  level: number;
+  text: string;
+  pos: number;
+}
+
+function extractHeadings(editor: Editor): HeadingItem[] {
+  const items: HeadingItem[] = [];
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "heading") {
+      items.push({
+        level: node.attrs.level as number,
+        text: node.textContent || "",
+        pos
+      });
+    }
+    return true;
+  });
+  return items;
+}
+
 export default function TiptapEditor({
   value,
   onChange,
@@ -51,22 +79,25 @@ export default function TiptapEditor({
   className,
   onReady
 }: TiptapEditorProps) {
+  const [tocOpen, setTocOpen] = useState(false);
+  const [headings, setHeadings] = useState<HeadingItem[]>([]);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3] },
-        codeBlock: false,
         horizontalRule: false
       }),
       Image.configure({ inline: false, allowBase64: false }),
       Underline,
+      Highlight,
       Placeholder.configure({ placeholder })
     ],
     editable,
     content: value?.html ?? value?.json ?? "",
     editorProps: {
       attributes: {
-        class: "prose-minimal outline-none focus:outline-none"
+        class: "outline-none focus:outline-none"
       },
       handleDrop: (view, event, _slice, moved) => {
         if (moved) return false;
@@ -120,6 +151,26 @@ export default function TiptapEditor({
     }
   }, [editor, editable]);
 
+  // 目录实时跟随编辑器内容变化
+  useEffect(() => {
+    if (!editor) return;
+    const refresh = () => setHeadings(extractHeadings(editor));
+    refresh();
+    editor.on("update", refresh);
+    return () => {
+      editor.off("update", refresh);
+    };
+  }, [editor]);
+
+  const jumpTo = (pos: number) => {
+    editor
+      ?.chain()
+      .focus()
+      .setTextSelection(pos)
+      .scrollIntoView()
+      .run();
+  };
+
   if (!editor) return null;
 
   return (
@@ -162,6 +213,24 @@ export default function TiptapEditor({
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           icon={<UnderlineIcon className="h-4 w-4" />}
         />
+        <ToolbarButton
+          active={editor.isActive("strike")}
+          label="删除线"
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          icon={<Strikethrough className="h-4 w-4" />}
+        />
+        <ToolbarButton
+          active={editor.isActive("highlight")}
+          label="高亮"
+          onClick={() => editor.chain().focus().toggleHighlight().run()}
+          icon={<Highlighter className="h-4 w-4" />}
+        />
+        <ToolbarButton
+          active={editor.isActive("code")}
+          label="行内代码"
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          icon={<Code className="h-4 w-4" />}
+        />
         <Divider />
         <ToolbarButton
           active={editor.isActive("bulletList")}
@@ -180,6 +249,12 @@ export default function TiptapEditor({
           label="引用"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           icon={<Quote className="h-4 w-4" />}
+        />
+        <ToolbarButton
+          active={editor.isActive("codeBlock")}
+          label="代码块"
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          icon={<Braces className="h-4 w-4" />}
         />
         <Divider />
         <ToolbarButton
@@ -200,6 +275,12 @@ export default function TiptapEditor({
         />
         <div className="ml-auto flex items-center gap-1">
           <ToolbarButton
+            active={tocOpen}
+            label={tocOpen ? "关闭目录" : "目录"}
+            onClick={() => setTocOpen((v) => !v)}
+            icon={<ListTree className="h-4 w-4" />}
+          />
+          <ToolbarButton
             label="撤销 (Ctrl+Z)"
             onClick={() => editor.chain().focus().undo().run()}
             icon={<Undo2 className="h-4 w-4" />}
@@ -211,8 +292,49 @@ export default function TiptapEditor({
           />
         </div>
       </div>
+
+      {tocOpen && (
+        <div className="border-b border-white/60 bg-white/50 px-4 py-3 backdrop-blur">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-500">
+              目录
+            </span>
+            <button
+              type="button"
+              onClick={() => setTocOpen(false)}
+              className="text-ink-400 hover:text-ink-700"
+              aria-label="关闭目录"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {headings.length === 0 ? (
+            <p className="py-2 text-xs text-ink-400">
+              暂无标题。选中文字后点击「二级标题 / 三级标题」，这里会自动生成目录。
+            </p>
+          ) : (
+            <ul className="space-y-1">
+              {headings.map((h, i) => (
+                <li key={i}>
+                  <button
+                    type="button"
+                    onClick={() => jumpTo(h.pos)}
+                    className={twMerge(
+                      "block w-full truncate rounded-lg px-2 py-1 text-left text-sm text-ink-700 transition hover:bg-white/80 hover:text-ink-950",
+                      h.level === 2 ? "pl-2 font-medium" : "pl-6 text-ink-600"
+                    )}
+                  >
+                    {h.text}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       <div
-        className="overflow-y-auto px-6 py-5 md:px-10"
+        className="prose-minimal overflow-y-auto px-6 py-5 md:px-10"
         style={{ minHeight }}
       >
         <EditorContent editor={editor} />
