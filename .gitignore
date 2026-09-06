@@ -9,6 +9,8 @@ coverage
 dist
 build
 extension/dist
+extension/chronicle-extension/
+docs/memory/
 *.log
 *.tsbuildinfo
 *.zip
