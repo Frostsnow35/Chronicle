@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Download, ExternalLink, Loader2, Puzzle } from "lucide-react";
+import { Download, ExternalLink, Loader2, Puzzle, Save } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import SerifHeading from "@/components/ui/SerifHeading";
 import MetaText from "@/components/ui/MetaText";
@@ -10,16 +10,39 @@ import MetaText from "@/components/ui/MetaText";
 export default function AdminPluginPage() {
   const [storeUrl, setStoreUrl] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [savingUrl, setSavingUrl] = useState(false);
+  const [urlMsg, setUrlMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/settings")
+    fetch("/api/settings/site")
       .then((r) => r.json())
       .then((d) => {
-        setStoreUrl(d?.value?.chrome_web_store_url || "");
+        setStoreUrl(d?.chrome_web_store_url || "");
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
+
+  const saveStoreUrl = async () => {
+    setSavingUrl(true);
+    setUrlMsg(null);
+    try {
+      const res = await fetch("/api/settings/site", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chrome_web_store_url: storeUrl })
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d?.error || "保存失败");
+      }
+      setUrlMsg("已保存。");
+    } catch (e: any) {
+      setUrlMsg(e?.message || "保存失败");
+    } finally {
+      setSavingUrl(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -40,6 +63,38 @@ export default function AdminPluginPage() {
           把 Chronicle 浏览器插件装进 Chrome / Edge，随时在浏览网页时记下灵感，保存到你的站点。
         </p>
       </div>
+
+      {/* 商店地址编辑 */}
+      <GlassCard className="p-6 md:p-8">
+        <div className="mb-4 flex items-center gap-2">
+          <ExternalLink className="h-5 w-5 text-sky-blue-600" />
+          <h3 className="font-serif text-xl font-semibold text-ink-950">插件商店地址</h3>
+        </div>
+        <p className="mb-4 text-sm text-ink-600">
+          上架 Edge 应用商店后，把商店地址填到这里，下方即可出现一键安装按钮。
+        </p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <input
+            value={storeUrl}
+            onChange={(e) => setStoreUrl(e.target.value)}
+            placeholder="https://microsoftedge.microsoft.com/addons/detail/xxxx"
+            className="w-full rounded-2xl border border-ink-200 bg-white/80 px-4 py-3 text-sm shadow-inner outline-none focus:border-hermes-orange-400 focus:ring-2 focus:ring-hermes-orange-200"
+          />
+          <button
+            onClick={saveStoreUrl}
+            disabled={savingUrl}
+            className="glass-button-primary shrink-0"
+          >
+            <Save className="h-4 w-4" />
+            {savingUrl ? "保存中…" : "保存地址"}
+          </button>
+        </div>
+        {urlMsg && (
+          <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-sm text-emerald-800">
+            {urlMsg}
+          </div>
+        )}
+      </GlassCard>
 
       {/* 商店一键安装 */}
       <GlassCard className="p-6 md:p-8">
@@ -78,7 +133,7 @@ export default function AdminPluginPage() {
         ) : (
           <>
             <p className="mb-5 text-sm text-ink-600">
-              尚未上架 Edge 应用商店。完成上架后，把商店地址填到「设置 → 插件商店地址」，这里就会出现一键安装按钮。
+              尚未上架 Edge 应用商店。完成上架后，把商店地址填到上方的「插件商店地址」，这里就会出现一键安装按钮。
             </p>
             <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-5 text-sm text-amber-800">
               <p className="font-semibold">上架需要三步：</p>

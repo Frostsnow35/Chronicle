@@ -27,21 +27,36 @@ export interface PublicPost {
 export const DEFAULT_SITE: SiteSettings = {
   name: "Chronicle",
   tagline: "用文字锚定时间",
-  author: "霜雪",
+  author: "",
   footer_text: "为流动的日子留下凭据",
   chrome_web_store_url: ""
 };
 
+/**
+ * 读取站点信息：
+ *  - name / tagline / footer_text 取 settings.site（未配置时用默认值）
+ *  - author（作者署名）改用用户在「设置」里填写的昵称，存在 settings.user
+ *  - chrome_web_store_url 供「安装插件」页读取
+ */
 export async function getSiteSettings(): Promise<SiteSettings> {
   try {
     const admin = getAdminClient();
     const { data, error } = await admin
       .from("settings")
-      .select("value")
-      .eq("key", "site")
-      .maybeSingle();
-    if (error || !data?.value) return DEFAULT_SITE;
-    return { ...DEFAULT_SITE, ...(data.value as Partial<SiteSettings>) };
+      .select("key,value")
+      .in("key", ["site", "user"]);
+    if (error) return DEFAULT_SITE;
+
+    const siteValue = (data?.find((r) => r.key === "site")?.value ?? {}) as Partial<SiteSettings>;
+    const userValue = (data?.find((r) => r.key === "user")?.value ?? {}) as {
+      display_name?: string;
+    };
+
+    return {
+      ...DEFAULT_SITE,
+      ...siteValue,
+      author: typeof userValue.display_name === "string" ? userValue.display_name : DEFAULT_SITE.author
+    };
   } catch {
     return DEFAULT_SITE;
   }
