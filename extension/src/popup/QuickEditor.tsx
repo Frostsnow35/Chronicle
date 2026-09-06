@@ -115,8 +115,13 @@ export default function QuickEditor({ profile }: Props) {
       setSaveState("success");
       window.setTimeout(() => setSaveState("idle"), 2200);
     } catch (e: any) {
+      const msg = e?.message || "";
       setSaveState("error");
-      setErrorMsg(e?.message || "保存失败，请检查网络或重新配对插件。");
+      if (msg.startsWith("授权失效")) {
+        setErrorMsg("授权失效，请在插件设置中重新配对。");
+      } else {
+        setErrorMsg("已保存到本地，将在网络恢复后自动同步。");
+      }
     }
   };
 

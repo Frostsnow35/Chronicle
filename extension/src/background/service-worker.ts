@@ -1,5 +1,8 @@
 /// <reference types="chrome" />
 
+import { syncPendingNote } from "@/lib/api-client";
+import type { NotePayload } from "@/lib/api-client";
+
 const ALARM_RETRY = "minimal-notes-retry-notes";
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -13,7 +16,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
 interface PendingNote {
   id: string;
-  payload: any;
+  payload: NotePayload;
   profile: { siteUrl: string; apiToken: string };
   createdAt: number;
   attempts: number;
@@ -31,15 +34,8 @@ async function retryPendingNotes() {
   for (const item of list) {
     if (Date.now() - item.createdAt > 1000 * 60 * 60 * 48) continue;
     try {
-      const r = await fetch(`${item.profile.siteUrl.replace(/\/$/, "")}/api/notes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${item.profile.apiToken}`
-        },
-        body: JSON.stringify(item.payload)
-      });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      // 重试时重新上传 base64 图片再保存，确保库里不落 base64
+      await syncPendingNote(item.profile, item.payload);
     } catch {
       item.attempts += 1;
       if (item.attempts < 12) stillPending.push(item);
