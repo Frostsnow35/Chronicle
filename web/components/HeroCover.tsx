@@ -6,15 +6,28 @@ import { ChevronDown } from "lucide-react";
 interface HeroCoverProps {
   siteName?: string;
   tagline?: string;
+  accent?: string;
+  secondary?: string;
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 /**
  * 首屏整屏封面：纯视觉渐变，无卡片无边框。
  * 底部提供动态“下滑进入”指引，点击或滚动整屏切入文章列表。
+ * 强调色与辅色可通过 accent / secondary 传入，用于空间主题切换。
  */
 export default function HeroCover({
   siteName = "Chronicle",
-  tagline = "用文字锚定时间"
+  tagline = "用文字锚定时间",
+  accent = "#ff6b00",
+  secondary = "#38bdf8"
 }: HeroCoverProps) {
   const scrollToList = () => {
     const el = document.getElementById("post-list");
@@ -23,13 +36,15 @@ export default function HeroCover({
 
   return (
     <section className="relative h-[100svh] w-full shrink-0 snap-start overflow-hidden">
-      {/* 橙蓝双色渐变 + 模糊 */}
+      {/* 双色渐变 + 模糊 */}
       <div
         aria-hidden="true"
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle at 18% 22%, rgba(255,107,0,0.92) 0%, rgba(255,107,0,0) 55%), radial-gradient(circle at 82% 78%, rgba(56,189,248,0.95) 0%, rgba(56,189,248,0) 55%), linear-gradient(135deg, rgba(255,165,94,0.7), rgba(147,219,255,0.7))",
+            `radial-gradient(circle at 18% 22%, ${hexToRgba(accent, 0.92)} 0%, ${hexToRgba(accent, 0)} 55%), ` +
+            `radial-gradient(circle at 82% 78%, ${hexToRgba(secondary, 0.95)} 0%, ${hexToRgba(secondary, 0)} 55%), ` +
+            `linear-gradient(135deg, ${hexToRgba(accent, 0.7)}, ${hexToRgba(secondary, 0.7)})`,
           filter: "blur(2px) saturate(125%)"
         }}
       />

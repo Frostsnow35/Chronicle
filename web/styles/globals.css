@@ -16,6 +16,15 @@
   --ink-200: #e5e7eb;
   --ink-100: #f3f4f6;
   --ink-50: #f9fafb;
+  --accent: 255 107 0; /* orange 500 */
+  --accent-strong: 224 94 0; /* orange 600 */
+  --accent-2: 56 189 248; /* sky-blue 500 */
+}
+
+[data-theme="blue"] {
+  --accent: 14 165 224; /* sky-blue 600 */
+  --accent-strong: 11 133 180; /* sky-blue 700 */
+  --accent-2: 255 107 0; /* orange 500 */
 }
 
 html,
@@ -153,7 +162,7 @@ body::after {
   .prose-minimal h1,
   .prose-minimal h2,
   .prose-minimal h3 {
-    @apply font-serif font-semibold text-ink-900 tracking-tight;
+    @apply font-serif font-bold text-ink-950 tracking-tight;
   }
   .prose-minimal h1 {
     @apply text-3xl mt-12 mb-6;
@@ -180,7 +189,24 @@ body::after {
       max-w-full h-auto;
   }
   .prose-minimal strong {
-    @apply text-ink-950 font-semibold;
+    @apply text-ink-950 font-bold;
+  }
+  .prose-minimal s {
+    @apply text-ink-500 line-through decoration-ink-400;
+  }
+  .prose-minimal mark {
+    @apply bg-amber-200/90 text-ink-950 px-0.5 rounded-sm;
+  }
+  .prose-minimal code {
+    @apply font-mono text-[0.9em] text-sky-blue-800 bg-sky-blue-50/80
+      px-1.5 py-0.5 rounded-md border border-sky-blue-100/80;
+  }
+  .prose-minimal pre {
+    @apply my-6 overflow-x-auto rounded-xl border border-ink-200/70
+      bg-ink-900 px-5 py-4 text-ink-100 font-mono text-[14px] leading-relaxed;
+  }
+  .prose-minimal pre code {
+    @apply bg-transparent border-0 p-0 text-ink-100 text-[14px] rounded-none;
   }
   .prose-minimal a {
     @apply text-sky-blue-700 underline decoration-sky-blue-300

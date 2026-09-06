@@ -107,6 +107,20 @@ export function randomToken(bytes = 24) {
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/** 规范化用户名：小写、去空白、仅保留 [a-z0-9_-]，截断 30 字符。 */
+export function normalizeUsername(input: string): string {
+  return input
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9_-]/g, "")
+    .slice(0, 30);
+}
+
+/** 校验用户名：3–30 位，字母/数字开头，允许后续连字符与下划线。 */
+export function isValidUsername(input: string): boolean {
+  return /^[a-z0-9][a-z0-9_-]{2,29}$/.test(input);
+}
+
 /** 给正文 HTML 中的 <img> 注入懒加载与异步解码，减少首屏图片请求。 */
 export function lazyLoadImages(html: string): string {
   return html.replace(/<img\b([^>]*?)(\/?)>/gi, (_match, ...rest) => {

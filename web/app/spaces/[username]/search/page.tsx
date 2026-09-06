@@ -8,7 +8,12 @@ import MetaText from "@/components/ui/MetaText";
 import SerifHeading from "@/components/ui/SerifHeading";
 import type { PublicPost } from "@/lib/data";
 
-export default function SearchPage() {
+export default function SpaceSearchPage({
+  params
+}: {
+  params: { username: string };
+}) {
+  const username = params.username.toLowerCase();
   const [q, setQ] = useState("");
   const [results, setResults] = useState<PublicPost[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,7 +30,9 @@ export default function SearchPage() {
     setLoading(true);
     timerRef.current = window.setTimeout(async () => {
       try {
-        const r = await fetch(`/api/search?q=${encodeURIComponent(keyword)}`);
+        const r = await fetch(
+          `/api/search?q=${encodeURIComponent(keyword)}&username=${encodeURIComponent(username)}`
+        );
         const d = await r.json();
         setResults(d.data || []);
       } catch {
@@ -37,12 +44,12 @@ export default function SearchPage() {
     return () => {
       if (timerRef.current) window.clearTimeout(timerRef.current);
     };
-  }, [q]);
+  }, [q, username]);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16 md:py-24">
-      <Link href="/" className="link-muted font-sans text-sm">
-        ← 返回首页
+      <Link href={`/@${username}`} className="link-muted font-sans text-sm">
+        ← 返回空间首页
       </Link>
 
       <header className="mb-10 mt-10">
@@ -73,7 +80,7 @@ export default function SearchPage() {
         ) : (
           <div className="space-y-8">
             {results.map((p) => (
-              <PostCard key={p.id} post={p} />
+              <PostCard key={p.id} post={p} username={username} />
             ))}
           </div>
         )}

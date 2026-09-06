@@ -4,32 +4,36 @@ import type { Metadata } from "next";
 import PostCard from "@/components/PostCard";
 import SerifHeading from "@/components/ui/SerifHeading";
 import MetaText from "@/components/ui/MetaText";
-import { getCategoryWithPosts } from "@/lib/data";
+import { getProfileByUsername, getSpaceCategoryWithPosts } from "@/lib/data";
 
 export async function generateMetadata({
   params
 }: {
-  params: { id: string };
+  params: { username: string; id: string };
 }): Promise<Metadata> {
-  const { category } = await getCategoryWithPosts(params.id);
+  const { category } = await getSpaceCategoryWithPosts(params.username, params.id);
   if (!category) return { title: "分类" };
   return { title: category.name };
 }
 
-export default async function CategoryPostsPage({
+export default async function SpaceCategoryPostsPage({
   params
 }: {
-  params: { id: string };
+  params: { username: string; id: string };
 }) {
-  const { category, posts } = await getCategoryWithPosts(params.id);
-  if (!category) notFound();
+  const username = params.username.toLowerCase();
+  const [profile, { category, posts }] = await Promise.all([
+    getProfileByUsername(username),
+    getSpaceCategoryWithPosts(username, params.id)
+  ]);
+  if (!profile || !category) notFound();
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16 md:py-24">
-      <Link href="/categories" className="link-muted font-sans text-sm">
+      <Link href={`/@${username}/categories`} className="link-muted font-sans text-sm">
         ← 全部分类
       </Link>
-      <div className="mt-10 mb-12">
+      <div className="mb-12 mt-10">
         <MetaText>Category</MetaText>
         <SerifHeading level={1} className="mt-2">
           {category.name}
@@ -43,7 +47,7 @@ export default async function CategoryPostsPage({
       ) : (
         <div className="space-y-8">
           {posts.map((p) => (
-            <PostCard key={p.id} post={p} />
+            <PostCard key={p.id} post={p} username={username} />
           ))}
         </div>
       )}

@@ -15,6 +15,7 @@ export interface Database {
           name: string;
           parent_id: string | null;
           sort_order: number;
+          author_id: string;
           created_at: string;
         };
         Insert: {
@@ -22,6 +23,7 @@ export interface Database {
           name: string;
           parent_id?: string | null;
           sort_order?: number;
+          author_id?: string;
           created_at?: string;
         };
         Update: {
@@ -29,6 +31,7 @@ export interface Database {
           name?: string;
           parent_id?: string | null;
           sort_order?: number;
+          author_id?: string;
           created_at?: string;
         };
         Relationships: [
@@ -198,6 +201,39 @@ export interface Database {
         Update: {
           key?: string;
           value?: Json;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      profiles: {
+        Row: {
+          id: string;
+          username: string;
+          display_name: string;
+          avatar_url: string | null;
+          bio: string;
+          theme: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          username: string;
+          display_name?: string;
+          avatar_url?: string | null;
+          bio?: string;
+          theme?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          username?: string;
+          display_name?: string;
+          avatar_url?: string | null;
+          bio?: string;
+          theme?: string;
+          created_at?: string;
           updated_at?: string;
         };
         Relationships: [];

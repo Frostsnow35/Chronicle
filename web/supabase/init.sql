@@ -15,6 +15,7 @@ create table if not exists public.categories (
     name text not null,
     parent_id uuid references public.categories(id) on delete set null,
     sort_order int not null default 0,
+    author_id uuid references auth.users(id) on delete cascade not null default auth.uid(),
     created_at timestamptz not null default now()
 );
 
@@ -26,7 +27,7 @@ create policy "categories select public" on public.categories
 
 drop policy if exists "categories write authenticated only" on public.categories;
 create policy "categories write authenticated only" on public.categories
-    for all to authenticated using (true) with check (true);
+    for all to authenticated using (author_id = auth.uid()) with check (author_id = auth.uid());
 
 -- ---------------------------------------------------------------------
 -- 2. 文章 posts
@@ -34,7 +35,7 @@ create policy "categories write authenticated only" on public.categories
 create table if not exists public.posts (
     id uuid primary key default gen_random_uuid(),
     title text not null,
-    slug text not null unique,
+    slug text not null,
     content_json jsonb not null default '{}'::jsonb,
     content_html text not null default '',
     excerpt text not null default '',
@@ -48,6 +49,7 @@ create table if not exists public.posts (
 
 create index if not exists posts_visibility_created_at_idx on public.posts (visibility desc, created_at desc);
 create index if not exists posts_category_idx on public.posts (category_id);
+create unique index if not exists posts_author_slug_key on public.posts (author_id, slug);
 
 alter table public.posts enable row level security;
 
@@ -182,7 +184,64 @@ before update on public.settings
 for each row execute function public.trigger_set_updated_at();
 
 -- ---------------------------------------------------------------------
--- 7. Supabase Storage：自动创建 uploads 公开 bucket 及其访问策略
+-- 7. 用户空间 profiles（用户名 / 昵称 / 头像 / 简介 / 主题）
+-- ---------------------------------------------------------------------
+create table if not exists public.profiles (
+    id uuid primary key references auth.users(id) on delete cascade,
+    username text not null unique,
+    display_name text not null default '',
+    avatar_url text,
+    bio text not null default '',
+    theme text not null default 'orange',
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+drop policy if exists "profiles select public" on public.profiles;
+create policy "profiles select public" on public.profiles
+    for select using (true);
+
+drop policy if exists "profiles insert self" on public.profiles;
+create policy "profiles insert self" on public.profiles
+    for insert to authenticated with check (auth.uid() = id);
+
+drop policy if exists "profiles update self" on public.profiles;
+create policy "profiles update self" on public.profiles
+    for update to authenticated using (auth.uid() = id) with check (auth.uid() = id);
+
+drop trigger if exists profiles_update_trigger on public.profiles;
+create trigger profiles_update_trigger
+before update on public.profiles
+for each row execute function public.trigger_set_updated_at();
+
+-- 新用户注册时自动创建个人空间
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+    insert into public.profiles (id, username, display_name, avatar_url)
+    values (
+        new.id,
+        coalesce(
+            lower(regexp_replace(new.raw_user_meta_data->>'username', '[^a-z0-9_-]', '', 'g')),
+            'u' || substr(md5(new.id::text), 1, 10)
+        ),
+        coalesce(new.raw_user_meta_data->>'display_name', ''),
+        new.raw_user_meta_data->>'avatar_url'
+    )
+    on conflict (id) do nothing;
+    return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+    after insert on auth.users
+    for each row execute function public.handle_new_user();
+
+-- ---------------------------------------------------------------------
+-- 8. Supabase Storage：自动创建 uploads 公开 bucket 及其访问策略
 --    public = true：图片通过公开 URL 展示（无需登录即可读取）
 -- ---------------------------------------------------------------------
 insert into storage.buckets (id, name, public)
@@ -202,13 +261,12 @@ create policy "uploads owner delete" on storage.objects
     for delete to authenticated using (bucket_id = 'uploads');
 
 -- ---------------------------------------------------------------------
--- 8. 种子数据：一条默认站点名设置
+-- 9. 种子数据：一条默认站点名设置
 -- ---------------------------------------------------------------------
 insert into public.settings (key, value) values
     ('site', jsonb_build_object(
         'name', 'Chronicle',
         'tagline', '用文字锚定时间',
-        'author', '霜雪',
         'footer_text', '为流动的日子留下凭据',
         'chrome_web_store_url', ''
     ))

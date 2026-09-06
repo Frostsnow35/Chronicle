@@ -7,18 +7,25 @@ import GlassCard from "@/components/ui/GlassCard";
 import SerifHeading from "@/components/ui/SerifHeading";
 import MetaText from "@/components/ui/MetaText";
 import { createClient } from "@/lib/supabase/client";
+import { THEMES } from "@/lib/themes";
 
 interface ProfileData {
+  username: string;
   display_name: string;
   avatar_url: string;
+  bio: string;
+  theme: string;
   email: string;
   has_password: boolean;
 }
 
 export default function AdminSettingsPage() {
   const [form, setForm] = useState<ProfileData>({
+    username: "",
     display_name: "",
     avatar_url: "",
+    bio: "",
+    theme: "orange",
     email: "",
     has_password: false
   });
@@ -56,7 +63,9 @@ export default function AdminSettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           display_name: form.display_name,
-          avatar_url: form.avatar_url
+          avatar_url: form.avatar_url,
+          bio: form.bio,
+          theme: form.theme
         })
       });
       if (!res.ok) {
@@ -192,6 +201,20 @@ export default function AdminSettingsPage() {
         </div>
 
         <label className="block">
+          <span className="mb-1 block text-sm font-medium text-ink-800">空间地址（用户名）</span>
+          <input
+            value={form.username}
+            readOnly
+            className="w-full rounded-2xl border border-ink-200 bg-ink-50/60 px-4 py-3 text-sm text-ink-500 shadow-inner outline-none"
+          />
+          <span className="mt-1 block text-xs text-ink-500">
+            公开空间地址为{" "}
+            <span className="font-mono">/@{(form.username || "").toLowerCase()}</span>
+            ，注册后不可在此更改。
+          </span>
+        </label>
+
+        <label className="block">
           <span className="mb-1 block text-sm font-medium text-ink-800">昵称 / 显示名</span>
           <input
             value={form.display_name}
@@ -206,6 +229,50 @@ export default function AdminSettingsPage() {
             这个昵称会显示在文章页顶部的作者署名处。
           </span>
         </label>
+
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-ink-800">空间简介</span>
+          <textarea
+            value={form.bio}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, bio: e.target.value }))
+            }
+            placeholder="用一两句话介绍你的空间"
+            maxLength={200}
+            rows={3}
+            className="w-full resize-none rounded-2xl border border-ink-200 bg-white/80 px-4 py-3 text-sm shadow-inner outline-none focus:border-hermes-orange-400 focus:ring-2 focus:ring-hermes-orange-200"
+          />
+          <span className="mt-1 block text-xs text-ink-500">
+            简介会显示在空间首页与全局空间列表中。
+          </span>
+        </label>
+
+        <div>
+          <span className="mb-1 block text-sm font-medium text-ink-800">空间配色</span>
+          <div className="flex items-center gap-3">
+            {(Object.keys(THEMES) as Array<keyof typeof THEMES>).map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setForm((prev) => ({ ...prev, theme: key }))}
+                className={`flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm transition ${
+                  form.theme === key
+                    ? "border-hermes-orange-400 ring-2 ring-hermes-orange-200"
+                    : "border-ink-200 hover:border-ink-300"
+                }`}
+              >
+                <span
+                  className="h-4 w-4 rounded-full"
+                  style={{ backgroundColor: THEMES[key].accent }}
+                />
+                {THEMES[key].label}
+              </button>
+            ))}
+          </div>
+          <span className="mt-1 block text-xs text-ink-500">
+            这个配色会应用到你的公开空间页面。
+          </span>
+        </div>
 
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-ink-800">邮箱（只读）</span>

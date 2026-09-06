@@ -4,31 +4,35 @@ import type { Metadata } from "next";
 import SerifHeading from "@/components/ui/SerifHeading";
 import MetaText from "@/components/ui/MetaText";
 import ShareButtons from "@/components/ShareButtons";
-import GlassCard from "@/components/ui/GlassCard";
-import { getPublicPostBySlug, getSiteSettings } from "@/lib/data";
+import { getProfileByUsername, getSpacePostBySlug } from "@/lib/data";
 import { formatDate, lazyLoadImages } from "@/lib/utils";
 
 export async function generateMetadata({
   params
 }: {
-  params: { id: string };
+  params: { username: string; slug: string };
 }): Promise<Metadata> {
-  const post = await getPublicPostBySlug(params.id);
+  const post = await getSpacePostBySlug(params.username, params.slug);
   if (!post) return { title: "未找到" };
   return { title: post.title, description: post.excerpt };
 }
 
-export default async function PostPage({ params }: { params: { id: string } }) {
-  const [post, site] = await Promise.all([
-    getPublicPostBySlug(params.id),
-    getSiteSettings()
+export default async function SpacePostPage({
+  params
+}: {
+  params: { username: string; slug: string };
+}) {
+  const username = params.username.toLowerCase();
+  const [profile, post] = await Promise.all([
+    getProfileByUsername(username),
+    getSpacePostBySlug(username, params.slug)
   ]);
-  if (!post) notFound();
+  if (!profile || !post) notFound();
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16 md:py-24">
-      <Link href="/" className="link-muted font-sans text-sm">
-        ← 返回首页
+      <Link href={`/@${username}`} className="link-muted font-sans text-sm">
+        ← 返回 {profile.display_name || username} 的空间
       </Link>
 
       <article className="mt-10">
@@ -45,9 +49,9 @@ export default async function PostPage({ params }: { params: { id: string } }) {
           <SerifHeading level={1} className="text-4xl md:text-5xl">
             {post.title}
           </SerifHeading>
-          {site.author && (
-            <p className="mt-4 text-sm text-ink-500">文 / {site.author}</p>
-          )}
+          <p className="mt-4 text-sm text-ink-500">
+            文 / {profile.display_name || username}
+          </p>
         </header>
 
         <div className="divider-soft mb-10" />
@@ -72,9 +76,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 
       <footer className="mt-20 text-center">
         <div className="divider-soft mb-8" />
-        <p className="font-serif text-sm text-ink-500">
-          © {new Date().getFullYear()} {site.name} · {site.footer_text}
-        </p>
+        <p className="font-serif text-sm text-ink-500">@{username}</p>
       </footer>
     </div>
   );

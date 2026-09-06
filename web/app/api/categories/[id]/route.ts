@@ -13,13 +13,25 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    await resolveAuthorFromRequest(req);
+    const { authorId } = await resolveAuthorFromRequest(req);
     const body = await readJsonBody<{
       name?: string;
       parent_id?: string | null;
       sort_order?: number;
     }>(req);
     const admin = getAdminClient();
+
+    const existing = await admin
+      .from("categories")
+      .select("id,author_id")
+      .eq("id", params.id)
+      .maybeSingle();
+    if (existing.error) throw existing.error;
+    if (!existing.data)
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (existing.data.author_id !== authorId)
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
     const patch: any = {};
     if (body.name !== undefined) patch.name = body.name.trim();
     if (body.parent_id !== undefined) patch.parent_id = body.parent_id;
@@ -43,13 +55,26 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await resolveAuthorFromRequest(req);
+    const { authorId } = await resolveAuthorFromRequest(req);
     const admin = getAdminClient();
-    // 若有子分类则拒绝删除，要求先移动/删除子分类
+
+    const existing = await admin
+      .from("categories")
+      .select("id,author_id")
+      .eq("id", params.id)
+      .maybeSingle();
+    if (existing.error) throw existing.error;
+    if (!existing.data)
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (existing.data.author_id !== authorId)
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    // 若有子分类则拒绝删除，要求先移动/删除子分类（仅限本人子分类）
     const { data: children } = await admin
       .from("categories")
       .select("id")
       .eq("parent_id", params.id)
+      .eq("author_id", authorId)
       .limit(1);
     if (children && children.length > 0) {
       throw Object.assign(

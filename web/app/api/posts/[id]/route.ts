@@ -26,7 +26,7 @@ export async function GET(
       .select(
         "id,title,slug,content_json,content_html,excerpt,visibility,category_id,created_at,updated_at,cover_image,author_id,category:categories(id,name)"
       )
-      .or(`id.eq.${id},slug.eq.${id}`);
+      .eq("id", id);
 
     const { data, error } = await q.maybeSingle();
     if (error) throw error;
@@ -58,7 +58,7 @@ export async function PATCH(
     const existing = await admin
       .from("posts")
       .select("id,author_id,slug")
-      .or(`id.eq.${id},slug.eq.${id}`)
+      .eq("id", id)
       .maybeSingle();
     if (existing.error) throw existing.error;
     if (!existing.data)
@@ -124,7 +124,7 @@ export async function DELETE(
     const existing = await admin
       .from("posts")
       .select("id,author_id")
-      .or(`id.eq.${id},slug.eq.${id}`)
+      .eq("id", id)
       .maybeSingle();
     if (existing.error) throw existing.error;
     if (!existing.data)

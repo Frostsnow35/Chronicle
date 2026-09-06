@@ -6,9 +6,15 @@ import { formatDate } from "@/lib/utils";
 import type { PublicPost } from "@/lib/data";
 import { ArrowRight } from "lucide-react";
 
-export default function PostCard({ post }: { post: PublicPost }) {
+export default function PostCard({
+  post,
+  username
+}: {
+  post: PublicPost;
+  username: string;
+}) {
   return (
-    <Link href={`/posts/${post.slug}`} className="block group">
+    <Link href={`/@${username}/posts/${post.slug}`} className="block group">
       <GlassCard className="p-8 transition-transform duration-300 group-hover:-translate-y-0.5">
         <div className="mb-4 flex items-center gap-3">
           <MetaText>{formatDate(post.created_at, "short")}</MetaText>
@@ -19,7 +25,7 @@ export default function PostCard({ post }: { post: PublicPost }) {
             </>
           )}
         </div>
-        <SerifHeading level={3} className="mb-3 group-hover:text-hermes-orange-700 transition-colors">
+        <SerifHeading level={3} className="mb-3 transition-colors group-hover:text-accent-strong">
           {post.title}
         </SerifHeading>
         {post.excerpt && (
@@ -27,7 +33,7 @@ export default function PostCard({ post }: { post: PublicPost }) {
             {post.excerpt}
           </p>
         )}
-        <div className="mt-5 inline-flex items-center gap-1.5 font-sans text-sm text-hermes-orange-600">
+        <div className="mt-5 inline-flex items-center gap-1.5 font-sans text-sm text-accent-strong">
           继续阅读
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </div>

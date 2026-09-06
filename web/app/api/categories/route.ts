@@ -6,10 +6,12 @@ export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   try {
+    const { authorId } = await resolveAuthorFromRequest(req);
     const admin = getAdminClient();
     const { data, error } = await admin
       .from("categories")
       .select("id,name,parent_id,sort_order,created_at")
+      .eq("author_id", authorId)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true });
     if (error) throw error;
@@ -21,7 +23,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    await resolveAuthorFromRequest(req);
+    const { authorId } = await resolveAuthorFromRequest(req);
     const body = await readJsonBody<{
       name: string;
       parent_id?: string | null;
@@ -36,7 +38,8 @@ export async function POST(req: NextRequest) {
       .insert({
         name: body.name.trim(),
         parent_id: body.parent_id ?? null,
-        sort_order: body.sort_order ?? 0
+        sort_order: body.sort_order ?? 0,
+        author_id: authorId
       })
       .select("*")
       .single();

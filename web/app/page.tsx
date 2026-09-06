@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
 import HeroCover from "@/components/HeroCover";
-import PostCard from "@/components/PostCard";
 import MetaText from "@/components/ui/MetaText";
 import SerifHeading from "@/components/ui/SerifHeading";
-import { getPublicPosts, getSiteSettings } from "@/lib/data";
+import GlassCard from "@/components/ui/GlassCard";
+import { getGlobalSiteSettings, listSpaces } from "@/lib/data";
 
 export default async function HomePage() {
-  const [site, posts] = await Promise.all([getSiteSettings(), getPublicPosts({ limit: 20 })]);
+  const [site, spaces] = await Promise.all([
+    getGlobalSiteSettings(),
+    listSpaces()
+  ]);
 
   return (
     <div className="home-scroll h-[100svh] w-full snap-y snap-proximity overflow-y-auto scroll-smooth">
@@ -21,49 +23,73 @@ export default async function HomePage() {
           <span className="text-xs font-medium uppercase tracking-[0.25em] text-ink-500">
             {site.name}
           </span>
-          <div className="flex items-center gap-5">
-            <Link
-              href="/search"
-              aria-label="搜索文章"
-              className="text-ink-500 transition hover:text-hermes-orange-600"
-            >
-              <Search className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/auth/login?next=/admin"
-              className="text-sm font-sans text-ink-700 transition hover:text-hermes-orange-600"
-            >
-              作者登录 · 注册 →
-            </Link>
-          </div>
-        </div>
-
-        <div className="mb-12 flex items-end justify-between">
-          <div>
-            <MetaText>Recent writing</MetaText>
-            <SerifHeading level={2} className="mt-2">
-              最新文字
-            </SerifHeading>
-          </div>
-          <Link href="/categories" className="link-muted text-sm font-sans">
-            按分类浏览 →
+          <Link
+            href="/auth/login?next=/admin"
+            className="text-sm font-sans text-ink-700 transition hover:text-hermes-orange-600"
+          >
+            登录 · 注册 →
           </Link>
         </div>
 
-        {posts.length === 0 ? (
-          <div className="rounded-2xl border border-white/60 bg-white/60 p-16 text-center backdrop-blur-xl">
-            <p className="text-ink-500">作者还没有发布公开文章。</p>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {posts.map((p, i) => (
-              <div
-                key={p.id}
-                className="animate-fade-up"
-                style={{ animationDelay: `${i * 60}ms` }}
+        <div className="mb-12">
+          <MetaText>All spaces</MetaText>
+          <SerifHeading level={2} className="mt-2">
+            探索空间
+          </SerifHeading>
+        </div>
+
+        {spaces.length === 0 ? (
+          <GlassCard className="p-16 text-center">
+            <p className="text-ink-500">还没有任何空间发布公开文章。</p>
+            <p className="mt-4">
+              <Link
+                href="/auth/login?next=/admin"
+                className="font-sans text-sm text-hermes-orange-600 hover:underline"
               >
-                <PostCard post={p} />
-              </div>
+                登录或注册，创建你的第一个空间 →
+              </Link>
+            </p>
+          </GlassCard>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {spaces.map((s) => (
+              <Link
+                key={s.id}
+                href={`/@${s.username}`}
+                className="group block"
+              >
+                <GlassCard className="h-full p-6 transition-transform duration-300 group-hover:-translate-y-0.5">
+                  <div className="flex items-center gap-3">
+                    {s.avatar_url ? (
+                      <img
+                        src={s.avatar_url}
+                        alt=""
+                        className="h-12 w-12 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-hermes-orange-500 to-sky-blue-500 font-serif text-lg font-semibold text-white">
+                        {(s.display_name || s.username).slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate font-serif text-lg font-semibold text-ink-950">
+                        {s.display_name || s.username}
+                      </p>
+                      <p className="truncate font-mono text-xs text-ink-500">
+                        @{s.username}
+                      </p>
+                    </div>
+                  </div>
+                  {s.bio && (
+                    <p className="mt-4 line-clamp-2 text-sm leading-relaxed text-ink-700">
+                      {s.bio}
+                    </p>
+                  )}
+                  <p className="mt-4 font-sans text-xs text-ink-500">
+                    {s.post_count} 篇公开文章
+                  </p>
+                </GlassCard>
+              </Link>
             ))}
           </div>
         )}

@@ -45,6 +45,11 @@ const config: Config = {
           700: "#0B85B4",
           800: "#086588",
           900: "#05455C"
+        },
+        accent: {
+          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+          strong: "rgb(var(--accent-strong) / <alpha-value>)",
+          secondary: "rgb(var(--accent-2) / <alpha-value>)"
         }
       },
       fontFamily: {

@@ -8,11 +8,13 @@ import SerifHeading from "@/components/ui/SerifHeading";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
+import { isValidUsername, normalizeUsername } from "@/lib/utils";
 
 export default function LoginPageClient() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -31,11 +33,17 @@ export default function LoginPageClient() {
         if (error) throw error;
         router.replace(next);
       } else {
+        const normalized = normalizeUsername(username);
+        if (!isValidUsername(normalized)) {
+          setErr("用户名需为 3–30 位，仅含小写字母、数字、连字符或下划线，并以字母或数字开头。");
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+            data: { username: normalized, display_name: normalized }
           }
         });
         if (error) throw error;
@@ -122,6 +130,21 @@ export default function LoginPageClient() {
               placeholder="you@example.com"
             />
           </label>
+          {mode === "register" && (
+            <label className="block">
+              <span className="mb-1 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-ink-500">
+                用户名（@空间地址）
+              </span>
+              <input
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full rounded-2xl border border-ink-200 bg-white/80 px-4 py-3 text-sm shadow-inner outline-none placeholder:text-ink-400 focus:border-hermes-orange-400 focus:ring-2 focus:ring-hermes-orange-200"
+                placeholder="如 alice 或 alice_writer"
+              />
+            </label>
+          )}
           <label className="block">
             <span className="mb-1 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-ink-500">
               <KeyRound className="h-3.5 w-3.5" /> 密码

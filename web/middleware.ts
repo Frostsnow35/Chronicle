@@ -28,6 +28,15 @@ const PUBLIC_API_PREFIXES = [
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  // 0. /@用户名 空间公开路由：@ 在 Next.js 中是并行路由保留符，无法作为目录名，
+  //    这里将 /@alice(/...) 内部重写为 /spaces/alice(/...)，浏览器地址栏保持 /@alice。
+  const rawPath = request.nextUrl.pathname;
+  if (rawPath.startsWith("/@")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/spaces/" + rawPath.slice(2);
+    return NextResponse.rewrite(url);
+  }
+
   const supabase = createServerClient<Database>(
     supabaseUrl(),
     supabaseAnonKey(),
